@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Oqudi",
+    "slug": "Oqudi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mohamadalamo.Oqudi"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.mohamadalamo.Oqudi"
+    },
+    "web": {
+      "favicon": ""
+    }
+  }
+}
