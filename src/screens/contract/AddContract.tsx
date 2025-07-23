@@ -1,18 +1,49 @@
-import React, {useMemo, useState} from 'react';
-import {View, StyleSheet, Text, Image, TouchableOpacity} from 'react-native';
+import React, {useMemo, useState, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
-// import Vector from '../../assets/icons/Vector.svg';
-// import DatePicker from '@react-native-community/datetimepicker';
+import Vector from '../../assets/icons/Vector.svg';
+import DownIcon from '../../assets/icons/DownIcon.svg';
 
+import DatePicker from '../../components/DatePicker';
+import Button from '../../components/Button';
+import {
+  getResponsiveFontSize,
+  getResponsiveSpacing,
+} from '../../lib/helpers/fontScaling';
 interface AddContractProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
 }
-
+const safeGetResponsiveSpacing = (spacing: number): number => {
+  try {
+    const result = getResponsiveSpacing(spacing);
+    return typeof result === 'number' && !isNaN(result) ? result : spacing;
+  } catch (error) {
+    console.warn('Error in getResponsiveSpacing:', error);
+    return spacing;
+  }
+};
+const safeGetResponsiveFontSize = (size: number): number => {
+  try {
+    const result = getResponsiveFontSize(size);
+    return typeof result === 'number' && !isNaN(result) ? result : size;
+  } catch (error) {
+    console.warn('Error in getResponsiveFontSize:', error);
+    return size;
+  }
+};
 const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   const {
     unitStatus,
@@ -22,66 +53,80 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     propertyPart,
     unitImage,
     haveContract,
+    selectedTenant,
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
+
+  // State for contract dates
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(
+    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+  ); // Default to 1 year later
+
+  // State for tenant selection
+  const [currentSelectedTenant, setCurrentSelectedTenant] = useState<any>(
+    selectedTenant || null,
+  );
+  const [showTenantOptions, setShowTenantOptions] = useState<boolean>(false);
+
+  // Update selected tenant when route params change
+  useEffect(() => {
+    if (selectedTenant) {
+      setCurrentSelectedTenant(selectedTenant);
+    }
+  }, [selectedTenant]);
+
+  // Handle tenant selection options
+  const handleTenantOptionPress = () => {
+    setShowTenantOptions(true);
+  };
+
+  const handleAddFromTenantList = () => {
+    setShowTenantOptions(false);
+    navigation.navigate(ROUTES.TENANTS, {
+      selectionMode: true,
+      returnTo: 'AddContract',
+      originalParams: route.params,
+    });
+  };
+
+  const handleAddNewTenant = () => {
+    setShowTenantOptions(false);
+    navigation.navigate(ROUTES.ADDTENANT, {
+      returnTo: 'AddContract',
+      originalParams: route.params,
+    });
+  };
+
+  // Calculate duration between dates
+  const calculateDuration = (start: Date, end: Date): string => {
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 30) {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} month${months > 1 ? 's' : ''}`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      const remainingDays = diffDays % 365;
+      const months = Math.floor(remainingDays / 30);
+
+      if (months === 0) {
+        return `${years} year${years > 1 ? 's' : ''}`;
+      } else {
+        return `${years} year${years > 1 ? 's' : ''} ${months} month${
+          months > 1 ? 's' : ''
+        }`;
+      }
+    }
+  };
+
   console.log(route, 'console.log(route.params);console.log(route.params);');
-
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [period, setPeriod] = useState('');
-
-  const onChangeStartDate = (event: any, selectedDate: Date | null) => {
-    const currentDate = selectedDate || new Date();
-    setStartDate(currentDate);
-    calculatePeriod();
-  };
-
-  const onChangeEndDate = (event: any, selectedDate: Date | null) => {
-    const currentDate = selectedDate || new Date();
-    setEndDate(currentDate);
-    calculatePeriod();
-  };
-
-  const calculatePeriod = () => {
-    const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
-    const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000; // Approximate month length
-    const diffInMillis = endDate.getTime() - startDate.getTime();
-
-    const years = Math.floor(diffInMillis / oneYearInMillis);
-    const remainingMillisAfterYears = diffInMillis % oneYearInMillis;
-    const months = Math.floor(remainingMillisAfterYears / oneMonthInMillis);
-    const days = Math.floor(
-      (remainingMillisAfterYears % oneMonthInMillis) / (24 * 60 * 60 * 1000),
-    );
-
-    let periodString = '';
-    if (years > 0) {
-      periodString += `${years} year${years > 1 ? 's' : ''}`;
-    }
-
-    if (months > 0) {
-      if (years > 0) {
-        periodString += ' and ';
-      }
-      periodString += `${months} month${months > 1 ? 's' : ''}`;
-    }
-
-    if (days > 0) {
-      if (years > 0 || months > 0) {
-        periodString += ' and ';
-      }
-      periodString += `${days} day${days > 1 ? 's' : ''}`;
-    }
-
-    if (periodString === '') {
-      periodString = 'Invalid Date Range';
-    }
-
-    setPeriod(periodString);
-  };
 
   return (
     <View style={styles.parentContainer}>
@@ -91,15 +136,15 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
             Create a new contract by filling in the required field
           </Text>
         </View>
-        <View style={styles.topTitleContainer}>
-          <Text style={styles.unitName}>Unit Details</Text>
-        </View>
+
         <View style={styles.card}>
           <Image source={unitImage} style={styles.image} />
           <View style={styles.infoContainer}>
             <Text style={styles.unitName}>{unitName}</Text>
             <View style={styles.areaContainer}>
-              {/* <Vector style={styles.vector} /> */}
+              <Text style={styles.areaIcon}>
+                <Vector />
+              </Text>
               <Text style={styles.areaText}>{areaSize} m²</Text>
             </View>
             <View
@@ -122,31 +167,101 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
             }>{`Part of the property ( ${propertyPart} )`}</Text>
         </View>
 
-        {/* <View style={styles.datePickersContainer}>
-          <View style={styles.datePickerWrapper}>
-            <Text style={styles.labelText}>Contract Start Date</Text>
-            <DatePicker
-              testID="startDate"
-              mode="date"
-              value={startDate}
-              onChange={onChangeStartDate}
-              style={styles.datePicker}
-            />
+        {/* Contract Dates Section */}
+        <View style={styles.dateSection}>
+          <View style={styles.dateLabelsRow}>
+            <Text style={styles.dateLabel}>Start date*</Text>
+            <Text style={styles.dateLabel2}>End date*</Text>
           </View>
-          <View style={styles.datePickerWrapper}>
-            <Text style={styles.labelText}>Contract End Date</Text>
-            <DatePicker
-              testID="endDate"
-              mode="date"
-              value={endDate}
-              onChange={onChangeEndDate}
-              style={styles.datePicker}
-            />
+          <View style={styles.dateRow}>
+            <View style={styles.datePickerContainer}>
+              <DatePicker value={startDate} onDateChange={setStartDate} />
+            </View>
+            <Text style={styles.dateSeparator}>-</Text>
+            <View style={styles.datePickerContainer}>
+              <DatePicker value={endDate} onDateChange={setEndDate} />
+            </View>
+            <Text style={styles.dateSeparator}>/</Text>
+            <View style={styles.durationContainer}>
+              <Text style={styles.durationText}>
+                {calculateDuration(startDate, endDate)}
+              </Text>
+            </View>
           </View>
-          <View style={styles.periodContainer}>
-            <Text style={styles.periodValue}>{period}</Text>
-          </View>
-        </View> */}
+        </View>
+
+        {/* Tenant Selection */}
+        <View style={styles.tenantSection}>
+          <Text style={styles.sectionLabel}>Tenant*</Text>
+          <TouchableOpacity
+            style={[
+              styles.tenantButton,
+              currentSelectedTenant && styles.tenantButtonSelected,
+            ]}
+            onPress={handleTenantOptionPress}>
+            <Text
+              style={[
+                styles.tenantButtonText,
+                currentSelectedTenant && styles.tenantButtonTextSelected,
+              ]}>
+              {currentSelectedTenant
+                ? `${currentSelectedTenant.name?.firstName} ${currentSelectedTenant.name?.lastName}`
+                : 'Add tenant'}
+            </Text>
+            <Text style={styles.dropdownIcon}>
+              <DownIcon />
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Tenant Options Modal */}
+        <Modal
+          visible={showTenantOptions}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowTenantOptions(false)}>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setShowTenantOptions(false)}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={handleAddFromTenantList}>
+                <Text style={styles.modalOptionText}>Add from tenant list</Text>
+              </TouchableOpacity>
+              <View style={styles.modalSeparator} />
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={handleAddNewTenant}>
+                <Text style={styles.modalOptionText}>Add new tenant</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+
+        {/* Payment Schedule */}
+        <View style={styles.paymentSection}>
+          <Text style={styles.sectionLabel}>Payment schedule*</Text>
+          <TouchableOpacity style={styles.scheduleButton}>
+            <Text style={styles.scheduleButtonText}>Add Schedule</Text>
+            <Text style={styles.plusIcon}>+</Text>
+          </TouchableOpacity>
+          <Text style={styles.scheduleDescription}>
+            This tool helps you to generate a schedule of all the rents due
+            using a simple tool. The application will allow you to follow-up on
+            all rents due. You can always add, edit or delete payments
+          </Text>
+        </View>
+
+        {/* Save Button */}
+        <Button
+          title="Save"
+          onPress={() => {}}
+          backgroundColor={COLORS.primary}
+          titleColor="#331800"
+          //  disabled={!!Object.keys(errors).length || isLoading}
+        />
       </View>
     </View>
   );
@@ -177,6 +292,9 @@ const Styles = (theme: ThemeState) =>
       marginBottom: 15,
     },
     topText: {
+      color: theme === 'light' ? '#ADACB1' : '#ADACB1',
+      fontSize: 16,
+      fontWeight: '400',
       textAlign: 'left',
     },
     card: {
@@ -210,6 +328,10 @@ const Styles = (theme: ThemeState) =>
       flexDirection: 'row',
       alignItems: 'center',
       marginVertical: 4,
+    },
+    areaIcon: {
+      fontSize: 16,
+      marginTop: 5,
     },
     areaText: {
       color: '#ADACB1',
@@ -283,16 +405,180 @@ const Styles = (theme: ThemeState) =>
       fontSize: 16,
       marginLeft: 10,
     },
-    saveButton: {
-      backgroundColor: 'blue',
-      padding: 10,
-      borderRadius: 5,
+    // Date section styles
+    dateSection: {
+      width: '100%',
       marginTop: 20,
     },
-    saveButtonText: {
-      color: 'white',
-      fontSize: 16,
+    dateRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
+      width: '100%',
+    },
+    datePickerContainer: {
+      flex: 1,
+      marginHorizontal: 5,
+    },
+    dateSeparator: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginHorizontal: 10,
+      marginBottom: 30,
+    },
+    durationContainer: {
+      paddingVertical: safeGetResponsiveSpacing(16),
+      paddingHorizontal: safeGetResponsiveSpacing(16),
+      height: safeGetResponsiveSpacing(60),
+      justifyContent: 'center',
+      alignItems: 'center',
+      minWidth: 100,
+      marginBottom: 5,
+      borderWidth: 1,
+      borderRadius: 14,
+      backgroundColor: COLORS.BackgroundLightGray,
+      borderColor: COLORS.BackgroundLightGray,
+    },
+    durationText: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(10),
+      fontWeight: '500',
       textAlign: 'center',
+    },
+
+    // Tenant section styles
+    tenantSection: {
+      width: '100%',
+      marginTop: 20,
+    },
+    sectionLabel: {
+      color: theme === 'light' ? '#24232A' : '#ADACB1',
+      fontSize: 14,
+      fontWeight: '400',
+      marginBottom: 8,
+      marginLeft: 5,
+    },
+    tenantButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderWidth: 1,
+      borderRadius: 14,
+      paddingVertical: 18,
+      paddingHorizontal: 16,
+      backgroundColor:
+        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
+      borderColor: theme === 'light' ? COLORS.black : COLORS.CardBackground,
+    },
+    tenantButtonText: {
+      color: theme === 'light' ? COLORS.black : '#F4F3F2',
+      fontSize: 16,
+    },
+    tenantButtonSelected: {
+      borderColor: '#4D9E70',
+      borderWidth: 2,
+    },
+    tenantButtonTextSelected: {
+      color: theme === 'light' ? COLORS.black : '#F4F3F2',
+      fontWeight: '600',
+    },
+    dropdownIcon: {
+      color: theme === 'light' ? COLORS.black : '#F4F3F2',
+      fontSize: 18,
+      fontWeight: 'bold',
+    },
+
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,
+      borderRadius: 12,
+      padding: 0,
+      minWidth: 200,
+      maxWidth: 300,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    modalOption: {
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      alignItems: 'center',
+    },
+    modalOptionText: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    modalSeparator: {
+      height: 1,
+      backgroundColor: theme === 'light' ? '#E0E0E0' : '#333',
+      marginHorizontal: 0,
+    },
+
+    // Payment section styles
+    paymentSection: {
+      width: '100%',
+      marginTop: 20,
+    },
+    scheduleButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderWidth: 1,
+      borderRadius: 14,
+      paddingVertical: 18,
+      paddingHorizontal: 16,
+      backgroundColor:
+        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
+      borderColor: theme === 'light' ? COLORS.black : COLORS.CardBackground,
+    },
+    scheduleButtonText: {
+      color: theme === 'light' ? COLORS.black : '#F4F3F2',
+      fontSize: 16,
+    },
+    plusIcon: {
+      color: theme === 'light' ? COLORS.black : '#F4F3F2',
+      fontSize: 24,
+      fontWeight: 'bold',
+    },
+    scheduleDescription: {
+      color: theme === 'light' ? '#666' : '#ADACB1',
+      fontSize: 12,
+      lineHeight: 18,
+      marginTop: 10,
+      paddingHorizontal: 5,
+    },
+    // Date labels styles
+    dateLabelsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    dateLabel: {
+      color: theme === 'light' ? '#24232A' : '#ADACB1',
+      fontSize: 14,
+      fontWeight: '400',
+      flex: 1,
+      marginHorizontal: 5,
+    },
+    dateLabel2: {
+      color: theme === 'light' ? '#24232A' : '#ADACB1',
+      fontSize: 14,
+      fontWeight: '400',
+      flex: 1,
+      marginRight: 70,
     },
   });
 

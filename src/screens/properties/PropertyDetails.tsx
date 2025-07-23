@@ -17,6 +17,7 @@ import RoundButton from '../../components/RoundButton';
 import FloatinActionButton from '../../components/FloatinActionButton';
 import UnitsCard from '../units/UnitCard';
 import {useGetUnitsQuery} from '../../app/services/api/units';
+import {SERVER_URL} from '../../app/config';
 interface PropertyDetailsProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -65,7 +66,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
           {/* <Text style={styles.unitText}>Leased Units: {leasedUnits}</Text>
           <Text style={styles.unitText}>Vacant Units: {vacantUnits}</Text> */}
         </View>
-        {units.length > 0 && (
+        {units.length > 0 ? (
           <View style={styles.second222}>
             {/* Form Here */}
             <Text style={styles.propertyName}>Units</Text>
@@ -74,7 +75,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
               // eslint-disable-next-line react-native/no-inline-styles
               contentContainerStyle={{paddingBottom: 130}}>
               {units?.map((unit, index) => {
-                const imageUrl = `http://149.28.138.6:4500/${unit.pictures[0]}`;
+                const imageUrl = `${SERVER_URL}/${unit.pictures[0]}`;
 
                 return (
                   <TouchableOpacity
@@ -111,20 +112,21 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
               })}
             </ScrollView>
           </View>
+        ) : (
+          <View style={styles.Roundbutton}>
+            <RoundButton
+              onPress={() =>
+                navigation.navigate(ROUTES.ADD_UNIT, {
+                  propertyId: propertyId,
+                  propertyName: propertyName,
+                  propertyImage: propertyImage,
+                  propertyLocation: propertyLocation,
+                })
+              }
+              Title="Add unit   "
+            />
+          </View>
         )}
-        <View style={styles.Roundbutton}>
-          <RoundButton
-            onPress={() =>
-              navigation.navigate(ROUTES.ADD_UNIT, {
-                propertyId: propertyId,
-                propertyName: propertyName,
-                propertyImage: propertyImage,
-                propertyLocation: propertyLocation,
-              })
-            }
-            Title="Add unit   "
-          />
-        </View>
       </View>
       {units.length > 0 && (
         <View style={styles.addButton}>

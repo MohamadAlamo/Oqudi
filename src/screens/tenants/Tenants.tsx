@@ -13,12 +13,27 @@ import PropertyDark from '../../assets/img/PropertyDark.svg';
 import RoundButton from '../../components/RoundButton';
 interface TenantsProps {
   navigation: StackNavigationProp<any, any>;
+  route?: any;
 }
-const Tenants: React.FC<TenantsProps> = ({navigation}) => {
+const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
   const {data, error, isLoading} = useGetTenantsQuery();
   const SvgComponent = theme === 'dark' ? PropertyDark : PropertyLight;
+
+  // Check if we're in selection mode
+  const isSelectionMode = route?.params?.selectionMode;
+  const originalParams = route?.params?.originalParams;
+
+  // Handle tenant selection
+  const handleTenantSelect = (tenant: any) => {
+    if (isSelectionMode) {
+      navigation.navigate(ROUTES.ADDCONTRACT, {
+        ...originalParams,
+        selectedTenant: tenant,
+      });
+    }
+  };
   if (error)
     return (
       <View style={styles.parentContainer}>
@@ -51,16 +66,22 @@ const Tenants: React.FC<TenantsProps> = ({navigation}) => {
               vatNumber={`${item.VAT}`}
               onEdit={() => {}}
               onDelete={() => {}}
+              onPress={
+                isSelectionMode ? () => handleTenantSelect(item) : undefined
+              }
+              selectionMode={isSelectionMode}
             />
           ))}
         </View>
       </ScrollView>
-      <View style={styles.addButton}>
-        <FloatinActionButton
-          text="+"
-          onPress={() => navigation.navigate(ROUTES.ADDTENANT)}
-        />
-      </View>
+      {!isSelectionMode && (
+        <View style={styles.addButton}>
+          <FloatinActionButton
+            text="+"
+            onPress={() => navigation.navigate(ROUTES.ADDTENANT)}
+          />
+        </View>
+      )}
     </View>
   );
 };

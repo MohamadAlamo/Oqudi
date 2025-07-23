@@ -17,6 +17,8 @@ type ContactCardProps = {
   vatNumber: string;
   onEdit: () => void;
   onDelete: () => void;
+  onPress?: () => void;
+  selectionMode?: boolean;
 };
 
 export const ContactCard: React.FC<ContactCardProps> = ({
@@ -27,17 +29,32 @@ export const ContactCard: React.FC<ContactCardProps> = ({
   vatNumber,
   onEdit,
   onDelete,
+  onPress,
+  selectionMode,
 }) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = theme === 'dark' ? darkStyles : lightStyles;
+
+  const CardWrapper = selectionMode ? TouchableOpacity : View;
+  const cardProps = selectionMode ? {onPress, activeOpacity: 0.7} : {};
+
   return (
-    <View style={styles.card}>
-      <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-        <Text style={styles.editButtonText}>Edit</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
+    <CardWrapper style={styles.card} {...cardProps}>
+      {!selectionMode && (
+        <>
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )}
+      {selectionMode && (
+        <View style={styles.selectionIndicator}>
+          <Text style={styles.selectionText}>Tap to select</Text>
+        </View>
+      )}
       <View style={styles.row}>
         <NameIcon style={styles.icon} />
         <Text style={styles.name}>{name}</Text>
@@ -60,7 +77,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
       <View style={styles.rowVat}>
         <Text style={styles.info}>VAT {vatNumber}</Text>
       </View>
-    </View>
+    </CardWrapper>
   );
 };
 
@@ -146,6 +163,21 @@ const lightStyles = StyleSheet.create({
     marginBottom: 10,
     color: COLORS.black,
   },
+  selectionIndicator: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 1,
+  },
+  selectionText: {
+    color: '#331800',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });
 const darkStyles = StyleSheet.create({
   card: {
@@ -228,6 +260,21 @@ const darkStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     color: COLORS.white,
+  },
+  selectionIndicator: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 1,
+  },
+  selectionText: {
+    color: '#331800',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 export default ContactCard;

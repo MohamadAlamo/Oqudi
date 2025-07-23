@@ -101,8 +101,17 @@ function AuthNavigator() {
         />
         <Stack.Screen
           name={ROUTES.TENANTS}
-          component={BottomTabNavigator}
-          options={{headerShown: false}}
+          component={Tenants}
+          options={{
+            headerShown: true,
+            header: () => (
+              <CustomHeader
+                title="Tenants"
+                backgroundColor={headerBackgroundColor}
+                titleColor={headerTitleColor}
+              />
+            ),
+          }}
         />
         <Stack.Screen
           name={ROUTES.ADDTENANT}

@@ -20,8 +20,9 @@ import {asyncHandler} from 'async-handler-ts';
 
 interface AddTenantProps {
   navigation: StackNavigationProp<any, any>;
+  route?: any;
 }
-const AddTenant: React.FC<AddTenantProps> = ({navigation}) => {
+const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
@@ -54,7 +55,35 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation}) => {
     if (error) {
       return error;
     }
-    navigation.navigate(ROUTES.TENANTS);
+
+    // Check if we came from AddContract
+    const returnTo = route?.params?.returnTo;
+    const originalParams = route?.params?.originalParams;
+
+    if (returnTo === 'AddContract' && result) {
+      // Create tenant object from form data since API only returns token
+      const newTenant = {
+        _id: Date.now().toString(), // Temporary ID
+        name: {
+          firstName: inputFirstName,
+          lastName: inputLastName,
+        },
+        phone: inputPhone,
+        email: inputEmail,
+        location: inputAddress,
+        VAT: inputVatNumber,
+        notes: inputAdditional,
+      };
+
+      // Navigate back to AddContract with the newly created tenant
+      navigation.navigate(ROUTES.ADDCONTRACT, {
+        ...originalParams,
+        selectedTenant: newTenant,
+      });
+    } else {
+      // Default behavior - go to tenants list
+      navigation.navigate(ROUTES.TENANTS);
+    }
   };
 
   return (
