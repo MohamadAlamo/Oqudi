@@ -1,7 +1,8 @@
 import {StackNavigationProp} from '@react-navigation/stack';
-import React, {useCallback, useEffect, useMemo} from 'react';
-import {Controller, useForm} from 'react-hook-form';
+import {RouteProp} from '@react-navigation/native';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,16 +15,16 @@ import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {TUnitTypes} from '../../app/services/api/properties/types';
 import {useCreateUnitMutation} from '../../app/services/api/units';
-import {TAddUnitRequest} from '../../app/services/api/units/types';
 import Button from '../../components/Button';
 import Input from '../../components/input';
 import PhotoUploader from '../../components/PhotoUploader';
 import {COLORS, ROUTES} from '../../lib/constants';
 import SelectType from './components/SelectType';
+import {asyncHandler} from 'async-handler-ts';
 
 type AddUnitRouteProp = RouteProp<
   {
-    params: {
+    AddUnit: {
       propertyId: string;
       propertyName: string;
       propertyImage: string;
@@ -35,7 +36,7 @@ type AddUnitRouteProp = RouteProp<
 
 interface AddUnitProps {
   navigation: StackNavigationProp<any, any>;
-  route: AddUnitRouteProp; // Add route prop here
+  route: AddUnitRouteProp;
 }
 
 const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
@@ -44,47 +45,159 @@ const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
-  const [createFn, {isLoading, isSuccess, isError}] = useCreateUnitMutation();
+  const [createFn, {isLoading}] = useCreateUnitMutation();
 
-  const {
-    control,
-    handleSubmit,
-    formState: {errors},
-    setValue,
-    watch,
-  } = useForm<TAddUnitRequest>({});
-  const values = watch();
+  // Form state
+  const [unitName, setUnitName] = useState<string>('');
+  const [unitSize, setUnitSize] = useState<string>('');
+  const [unitType, setUnitType] = useState<TUnitTypes | null>(null);
+  const [unitNotes, setUnitNotes] = useState<string>('');
+  const [unitPictures, setUnitPictures] = useState<string[]>([]);
 
-  const handlePhotoSelected = (photo: string | null) => {
-    if (!photo) return;
+  // Error states
+  const [nameError, setNameError] = useState<boolean>(false);
+  const [sizeError, setSizeError] = useState<boolean>(false);
+  const [typeError, setTypeError] = useState<boolean>(false);
+  const [pictureError, setPictureError] = useState<boolean>(false);
 
-    setValue('pictures', [photo]);
-  };
-  console.log(errors, 'error');
-
-  const onSubmit = async (data: TAddUnitRequest) => {
-    console.log(data);
-
-    createFn({
-      ...data,
-      property: propertyId,
-    }).then(console.log);
+  // Validation functions
+  const validateName = (name: string): boolean => {
+    return name.trim().length >= 2;
   };
 
-  const handleSelectionChange = useCallback((selectedType: TUnitTypes) => {
-    setValue('type', selectedType);
+  const validateSize = (size: string): boolean => {
+    const numericSize = parseFloat(size);
+    return !isNaN(numericSize) && numericSize > 0;
+  };
+
+  const validateType = (type: TUnitTypes | null): boolean => {
+    return type !== null;
+  };
+
+  const validatePictures = (pictures: string[]): boolean => {
+    return pictures.length > 0;
+  };
+
+  // Handle input changes with validation
+  const handleNameChange = (text: string) => {
+    setUnitName(text);
+    if (text.length > 0) {
+      setNameError(!validateName(text));
+    } else {
+      setNameError(false);
+    }
+  };
+
+  const handleSizeChange = (text: string) => {
+    setUnitSize(text);
+    if (text.length > 0) {
+      setSizeError(!validateSize(text));
+    } else {
+      setSizeError(false);
+    }
+  };
+
+  const handleNotesChange = (text: string) => {
+    setUnitNotes(text);
+  };
+
+  const handleTypeSelection = useCallback((selectedType: TUnitTypes) => {
+    setUnitType(selectedType);
+    setTypeError(false);
   }, []);
 
-  useEffect(() => {
-    if (isSuccess) {
-      navigation.navigate(ROUTES.PROPERTY_DETAILS, {
-        propertyId,
-        propertyName,
-        propertyImage,
-        propertyLocation,
-      });
+  const handlePhotoSelected = (photo: string | null) => {
+    if (photo) {
+      setUnitPictures([photo]);
+      setPictureError(false);
+    } else {
+      setUnitPictures([]);
     }
-  }, [isSuccess]);
+  };
+
+  const handleSave = async () => {
+    // Validate inputs before API call
+    const isNameValid = validateName(unitName);
+    const isSizeValid = validateSize(unitSize);
+    const isTypeValid = validateType(unitType);
+    const isPicturesValid = validatePictures(unitPictures);
+
+    // Set validation errors
+    setNameError(!isNameValid && unitName.length > 0);
+    setSizeError(!isSizeValid && unitSize.length > 0);
+    setTypeError(!isTypeValid);
+    setPictureError(!isPicturesValid);
+
+    // Check if inputs are empty
+    if (!unitName.trim()) {
+      setNameError(true);
+      Alert.alert('Error', 'Unit name is required');
+      return;
+    }
+
+    if (!unitSize.trim()) {
+      setSizeError(true);
+      Alert.alert('Error', 'Unit area size is required');
+      return;
+    }
+
+    if (!unitType) {
+      setTypeError(true);
+      Alert.alert('Error', 'Unit type is required');
+      return;
+    }
+
+    if (unitPictures.length === 0) {
+      setPictureError(true);
+      Alert.alert('Error', 'Unit photo is required');
+      return;
+    }
+
+    // Check validation
+    if (!isNameValid || !isSizeValid || !isTypeValid || !isPicturesValid) {
+      Alert.alert('Validation Error', 'Please fix the errors above');
+      return;
+    }
+
+    const [result, error] = await asyncHandler(
+      createFn({
+        name: unitName,
+        size: unitSize,
+        type: unitType,
+        notes: unitNotes ? [unitNotes] : [],
+        pictures: unitPictures,
+        property: propertyId,
+      }).unwrap(),
+    );
+
+    if (error) {
+      console.log({error});
+      let errorMessage = 'Failed to create unit. Please try again';
+
+      // Handle different types of API errors
+      if (error && typeof error === 'object' && 'status' in error) {
+        const apiError = error as any;
+        if (apiError.status === 400) {
+          errorMessage = 'Please check your information';
+        } else if (apiError.status === 500) {
+          errorMessage = 'Server error. Please try again later';
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      Alert.alert('Creation Failed', errorMessage);
+      return;
+    }
+
+    console.log({result});
+    navigation.navigate(ROUTES.PROPERTY_DETAILS, {
+      propertyId,
+      propertyName,
+      propertyImage,
+      propertyLocation,
+    });
+  };
 
   return (
     <KeyboardAvoidingView
@@ -98,107 +211,64 @@ const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
               <View style={styles.uploadPhoto}>
                 <Text style={styles.PhotoText}>Add photo of the unit*</Text>
                 <PhotoUploader onPhotoSelected={handlePhotoSelected} />
+                {pictureError && (
+                  <Text style={styles.errorText}>Photo is required</Text>
+                )}
               </View>
 
-              <Controller
-                control={control}
-                name="name"
-                rules={{required: 'Property name is required'}}
-                render={({field: {onChange, value}}) => (
-                  <Input
-                    label="Unit name/ number*"
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="Enter unit name/ number"
-                    keyboardType="default"
-                    borderColor={theme === 'dark' ? '#24232A' : 'white'}
-                    labelStyle={styles.label}
-                    placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
-                  />
-                )}
-              />
-              {/* <Controller
-                control={control}
-                name="floor"
-                rules={{required: 'floor'}}
-                render={({field: {onChange, value}}) => (
-                  <Input
-                    label="floor"
-                    value={value + ''}
-                    onChangeText={onChange}
-                    placeholder="floor"
-                    keyboardType="default"
-                    borderColor={theme === 'dark' ? '#24232A' : 'white'}
-                    labelStyle={styles.label}
-                    placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="door"
-                rules={{required: 'door'}}
-                render={({field: {onChange, value}}) => (
-                  <Input
-                    label="door"
-                    value={value + ''}
-                    onChangeText={onChange}
-                    placeholder="door"
-                    keyboardType="default"
-                    borderColor={theme === 'dark' ? '#24232A' : 'white'}
-                    labelStyle={styles.label}
-                    placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
-                  />
-                )}
-              /> */}
-              <SelectType onSelectionChange={handleSelectionChange} />
-
-              <Controller
-                control={control}
-                name="size"
-                rules={{required: 'Unit area size is required'}}
-                render={({field: {onChange, value}}) => (
-                  <Input
-                    label="Unit area size"
-                    value={value + ''}
-                    onChangeText={onChange}
-                    placeholder="Enter unit area size "
-                    keyboardType="default"
-                    borderColor={theme === 'dark' ? '#24232A' : 'white'}
-                    labelStyle={styles.label}
-                    placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
-                  />
-                )}
+              <Input
+                label="Unit name/ number*"
+                value={unitName}
+                onChangeText={handleNameChange}
+                placeholder="Enter unit name/ number"
+                keyboardType="default"
+                borderColor={theme === 'dark' ? '#24232A' : 'white'}
+                labelStyle={styles.label}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={nameError}
+                success={unitName.length > 0 && !nameError}
               />
 
-              <Controller
-                control={control}
-                name="notes"
-                render={({field: {onChange, value}}) => (
-                  <Input
-                    label="Notes"
-                    value={value + ''}
-                    onChangeText={onChange}
-                    placeholder="Enter any additional information"
-                    keyboardType="default"
-                    borderColor={theme === 'dark' ? '#24232A' : 'white'}
-                    labelStyle={styles.label}
-                    placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
-                    numberOfLines={4}
-                    maxLength={40}
-                    multiline={true}
-                  />
-                )}
+              <SelectType onSelectionChange={handleTypeSelection} />
+              {typeError && (
+                <Text style={styles.errorText}>Unit type is required</Text>
+              )}
+
+              <Input
+                label="Unit area size*"
+                value={unitSize}
+                onChangeText={handleSizeChange}
+                placeholder="Enter unit area size"
+                keyboardType="numeric"
+                borderColor={theme === 'dark' ? '#24232A' : 'white'}
+                labelStyle={styles.label}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={sizeError}
+                success={unitSize.length > 0 && !sizeError}
+              />
+
+              <Input
+                label="Notes"
+                value={unitNotes}
+                onChangeText={handleNotesChange}
+                placeholder="Enter any additional information"
+                keyboardType="default"
+                borderColor={theme === 'dark' ? '#24232A' : 'white'}
+                labelStyle={styles.label}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                numberOfLines={4}
+                maxLength={200}
+                multiline={true}
               />
             </View>
 
             <View style={styles.saveContainer}>
               <Button
-                title="Save"
-                onPress={handleSubmit(onSubmit)}
+                title={isLoading ? 'Saving...' : 'Save'}
+                onPress={handleSave}
                 backgroundColor={COLORS.primary}
                 titleColor="#331800"
-                disabled={!!Object.keys(errors).length || isLoading}
+                disabled={isLoading}
               />
             </View>
           </ScrollView>
@@ -234,13 +304,6 @@ const Styles = (theme: ThemeState) =>
       fontWeight: '400',
       lineHeight: 20,
     },
-    textView: {
-      marginTop: -20,
-      left: 38,
-      color: theme === 'light' ? COLORS.black : '#ADACB1',
-      fontWeight: '400',
-      fontSize: 14,
-    },
     PhotoText: {
       color: theme === 'light' ? '#7E7D86' : '#ADACB1',
       marginLeft: 15,
@@ -249,27 +312,14 @@ const Styles = (theme: ThemeState) =>
     uploadPhoto: {
       marginTop: 20,
     },
-    svgMap: {
-      marginLeft: 10,
-    },
-    structPicker: {
-      marginTop: 15,
-    },
     errorText: {
-      color: 'red',
+      color: COLORS.Delete || 'red',
       fontSize: 12,
-      marginLeft: 5,
+      marginLeft: 15,
+      marginTop: 5,
     },
     saveContainer: {
       marginBottom: 10,
-    },
-    unit: {
-      marginLeft: 10,
-      fontSize: 16,
-      color: 'black',
-    },
-    input: {
-      height: 100,
     },
   });
 

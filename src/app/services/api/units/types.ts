@@ -33,9 +33,16 @@ export type TAddPropertyResponse = {
 
 export type TAddUnitRequest = Omit<
   TUnit,
-  '_id' | 'propertyIncome' | 'contracts' | 'status' | 'size'
+  | '_id'
+  | 'propertyIncome'
+  | 'contracts'
+  | 'status'
+  | 'size'
+  | 'property'
+  | 'owner'
 > & {
   size: string;
+  property: string;
 };
 
 export const UNIT_TYPES = {
