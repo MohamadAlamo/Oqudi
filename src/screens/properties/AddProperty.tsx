@@ -27,6 +27,7 @@ import {
   TUnitTypes,
 } from '../../app/services/api/properties/types';
 import {useCreatePropertyMutation} from '../../app/services/api/properties';
+import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 import {asyncHandler} from 'async-handler-ts';
 
 interface AddPropertyProps {
@@ -38,6 +39,13 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
   const styles = useMemo(() => Styles(theme), [theme]);
   const [createFn, {isLoading}] = useCreatePropertyMutation();
   const SvgMap = theme === 'dark' ? SvgMapLight : SvgMapDark;
+
+  // Use form exit confirmation hook - navigate back to Properties list on discard
+  useFormExitConfirmation({
+    navigation,
+    targetRoute: 'BottomTabs',
+    targetParams: {screen: ROUTES.PROPERTIES},
+  });
   // Form state
   const [propertyName, setPropertyName] = useState<string>('');
   const [propertyLocation, setPropertyLocation] = useState<string>('');

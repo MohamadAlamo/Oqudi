@@ -28,9 +28,12 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
   // Handle tenant selection
   const handleTenantSelect = (tenant: any) => {
     if (isSelectionMode) {
-      navigation.navigate(ROUTES.ADDCONTRACT, {
-        ...originalParams,
-        selectedTenant: tenant,
+      navigation.navigate('ContractFlow', {
+        screen: ROUTES.ADDCONTRACT,
+        params: {
+          ...originalParams,
+          selectedTenant: tenant,
+        },
       });
     }
   };

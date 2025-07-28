@@ -17,6 +17,7 @@ import {SocialButton} from '../../components/SocialButton';
 import {RootState, useAppSelector} from '../../app/redux/store';
 import {useCreateTenantMutation} from '../../app/services/api/tenants';
 import {asyncHandler} from 'async-handler-ts';
+import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 
 interface AddTenantProps {
   navigation: StackNavigationProp<any, any>;
@@ -36,6 +37,13 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
   const [inputAdditional, setInputAdditional] = useState('');
 
   const [regTenant] = useCreateTenantMutation();
+
+  // Use form exit confirmation hook - navigate back to Tenants list on discard
+  useFormExitConfirmation({
+    navigation,
+    targetRoute: 'BottomTabs',
+    targetParams: {screen: ROUTES.TENANTS},
+  });
 
   const handleAddTenant = async () => {
     const [result, error] = await asyncHandler(

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  Alert,
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
@@ -23,6 +22,7 @@ import {
   getResponsiveFontSize,
   getResponsiveSpacing,
 } from '../../lib/helpers/fontScaling';
+import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 interface AddContractProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -80,34 +80,11 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
   }, [selectedTenant]);
 
-  // Handle Android back button - prevent accidental navigation away
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('beforeRemove', e => {
-      // If we don't have unsaved changes, let the user leave normally
-      // For now, we'll always show the confirmation for form screens
-
-      // Prevent default behavior of leaving the screen
-      if (!e.data.action) return;
-
-      e.preventDefault();
-
-      // Show confirmation dialog
-      Alert.alert(
-        'Discard changes?',
-        'You have unsaved changes. Are you sure you want to discard them and leave the screen?',
-        [
-          {text: "Don't leave", style: 'cancel', onPress: () => {}},
-          {
-            text: 'Discard',
-            style: 'destructive',
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ],
-      );
-    });
-
-    return unsubscribe;
-  }, [navigation]);
+  // Use form exit confirmation hook
+  useFormExitConfirmation({
+    navigation,
+    targetRoute: ROUTES.UNIT_DETAILS,
+  });
 
   // Handle tenant selection options
   const handleTenantOptionPress = () => {

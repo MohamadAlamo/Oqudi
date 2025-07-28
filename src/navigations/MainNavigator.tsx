@@ -66,9 +66,7 @@ function MainNavigator() {
           component={AddTenant}
           options={{
             headerShown: true,
-            gestureEnabled: false, // Disable swipe back to prevent data loss
-            gestureResponseDistance: 0, // Disable gesture response completely
-            gestureDirection: 'horizontal',
+            gestureEnabled: true, // Enable swipe back to trigger confirmation
             header: () => (
               <CustomHeader
                 title="Add Tenant"
@@ -85,9 +83,7 @@ function MainNavigator() {
           component={AddProperty}
           options={{
             headerShown: true,
-            gestureEnabled: false, // Disable swipe back to prevent data loss
-            gestureResponseDistance: 0, // Disable gesture response completely
-            gestureDirection: 'horizontal',
+            gestureEnabled: true, // Enable swipe back to trigger confirmation
             header: () => (
               <CustomHeader
                 title="Add Property"

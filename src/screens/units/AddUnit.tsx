@@ -15,6 +15,7 @@ import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {TUnitTypes} from '../../app/services/api/properties/types';
 import {useCreateUnitMutation} from '../../app/services/api/units';
+import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 import Button from '../../components/Button';
 import Input from '../../components/input';
 import PhotoUploader from '../../components/PhotoUploader';
@@ -46,6 +47,18 @@ const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
   const styles = useMemo(() => Styles(theme), [theme]);
 
   const [createFn, {isLoading}] = useCreateUnitMutation();
+
+  // Use form exit confirmation hook - navigate back to PropertyDetails on discard
+  useFormExitConfirmation({
+    navigation,
+    targetRoute: ROUTES.PROPERTY_DETAILS,
+    targetParams: {
+      propertyId,
+      propertyName,
+      propertyImage,
+      propertyLocation,
+    },
+  });
 
   // Form state
   const [unitName, setUnitName] = useState<string>('');
