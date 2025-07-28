@@ -1,14 +1,14 @@
 import React, {useMemo} from 'react';
 import {SafeAreaView, StyleSheet} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
-import {AddTenant, Properties, Tenants} from '../screens';
 import {COLORS, ROUTES} from '../lib/constants';
 import CustomHeader from '../components/CustomHeader';
 import {RootState} from '../app/redux/store';
 import {useSelector} from 'react-redux';
-import AddProperty from '../screens/properties/AddProperty';
 import {ThemeState} from '../app/redux/themeSlice';
 import UnitDetails from '../screens/units/UnitDetails';
+import AddUnit from '../screens/units/AddUnit';
+
 const Stack = createStackNavigator();
 
 function UnitsNavigator() {
@@ -16,14 +16,13 @@ function UnitsNavigator() {
   const styles = useMemo(() => Styles(theme), [theme]);
   const headerBackgroundColor =
     theme === 'dark' ? COLORS.headerDarkBackground : COLORS.white;
-
   const headerTitleColor = theme === 'dark' ? COLORS.white : COLORS.black;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <Stack.Navigator
+      <Stack.Navigator
         screenOptions={{
-          headerBackTitleVisible: false,
+          gestureEnabled: true,
         }}
         initialRouteName={ROUTES.UNIT_DETAILS}>
         <Stack.Screen
@@ -31,19 +30,39 @@ function UnitsNavigator() {
           component={UnitDetails}
           options={{
             headerShown: true,
+            gestureEnabled: true, // Enable swipe back for unit details
             header: () => (
               <CustomHeader
-                title="Unit details"
+                title="Unit Details"
                 backgroundColor={headerBackgroundColor}
                 titleColor={headerTitleColor}
               />
             ),
           }}
         />
-      </Stack.Navigator> */}
+
+        <Stack.Screen
+          name={ROUTES.ADD_UNIT}
+          component={AddUnit}
+          options={{
+            headerShown: true,
+            gestureEnabled: false, // Disable swipe back to prevent data loss
+            gestureResponseDistance: 0, // Disable gesture response completely
+            gestureDirection: 'horizontal',
+            header: () => (
+              <CustomHeader
+                title="Add Unit"
+                backgroundColor={headerBackgroundColor}
+                titleColor={headerTitleColor}
+              />
+            ),
+          }}
+        />
+      </Stack.Navigator>
     </SafeAreaView>
   );
 }
+
 const Styles = (theme: ThemeState) =>
   StyleSheet.create({
     container: {

@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
+import {View, StyleSheet, Text, Image, Platform} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../app/redux/store';
@@ -65,15 +65,18 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
           <View style={styles.Roundbutton}>
             <RoundButton
               onPress={() =>
-                navigation.navigate(ROUTES.ADDCONTRACT, {
-                  unitId: unitId,
-                  unitName: unitName,
-                  areaSize: areaSize,
-                  unitStatus: unitStatus,
-                  unitType: unitType,
-                  propertyPart: propertyPart,
-                  unitImage: {uri: unitImage},
-                  haveContract: haveContract,
+                navigation.navigate('ContractFlow', {
+                  screen: ROUTES.ADDCONTRACT,
+                  params: {
+                    unitId: unitId,
+                    unitName: unitName,
+                    areaSize: areaSize,
+                    unitStatus: unitStatus,
+                    unitType: unitType,
+                    propertyPart: propertyPart,
+                    unitImage: {uri: unitImage},
+                    haveContract: haveContract,
+                  },
                 })
               }
               Title="Add contract"
@@ -175,6 +178,7 @@ const Styles = (theme: ThemeState) =>
       marginTop: 100,
       width: '45%',
       alignSelf: 'center',
+      paddingRight: Platform.OS === 'ios' ? 0 : 12,
     },
   });
 

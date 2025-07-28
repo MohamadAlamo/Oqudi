@@ -6,6 +6,7 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
@@ -97,7 +98,10 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                         params,
                       );
 
-                      navigation.navigate(ROUTES.UNIT_DETAILS, params);
+                      navigation.navigate('UnitsFlow', {
+                        screen: ROUTES.UNIT_DETAILS,
+                        params: params,
+                      });
                     }}>
                     <UnitsCard
                       imageUri={{uri: imageUrl}}
@@ -116,11 +120,14 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
           <View style={styles.Roundbutton}>
             <RoundButton
               onPress={() =>
-                navigation.navigate(ROUTES.ADD_UNIT, {
-                  propertyId: propertyId,
-                  propertyName: propertyName,
-                  propertyImage: propertyImage,
-                  propertyLocation: propertyLocation,
+                navigation.navigate('UnitsFlow', {
+                  screen: ROUTES.ADD_UNIT,
+                  params: {
+                    propertyId: propertyId,
+                    propertyName: propertyName,
+                    propertyImage: propertyImage,
+                    propertyLocation: propertyLocation,
+                  },
                 })
               }
               Title="Add unit   "
@@ -133,11 +140,14 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
           <FloatinActionButton
             text="+"
             onPress={() =>
-              navigation.navigate(ROUTES.ADD_UNIT, {
-                propertyId: propertyId,
-                propertyName: propertyName,
-                propertyImage: propertyImage,
-                propertyLocation: propertyLocation,
+              navigation.navigate('UnitsFlow', {
+                screen: ROUTES.ADD_UNIT,
+                params: {
+                  propertyId: propertyId,
+                  propertyName: propertyName,
+                  propertyImage: propertyImage,
+                  propertyLocation: propertyLocation,
+                },
               })
             }
           />
@@ -213,6 +223,7 @@ const Styles = (theme: ThemeState) =>
       marginTop: 30,
       width: '40%',
       alignSelf: 'center',
+      paddingRight: Platform.OS === 'ios' ? 0 : 10,
     },
     propertyContainer: {
       width: '100%',

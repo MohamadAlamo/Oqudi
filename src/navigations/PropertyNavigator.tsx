@@ -6,10 +6,8 @@ import {COLORS, ROUTES} from '../lib/constants';
 import CustomHeader from '../components/CustomHeader';
 import {RootState} from '../app/redux/store';
 import {useSelector} from 'react-redux';
-import AddProperty from '../screens/properties/AddProperty';
 import {ThemeState} from '../app/redux/themeSlice';
-import PropertyDetails from '../screens/properties/PropertyDetails';
-import AddUnit from '../screens/units/AddUnit';
+
 const Stack = createStackNavigator();
 
 function PropertyNavigator() {
@@ -31,48 +29,6 @@ function PropertyNavigator() {
             header: () => (
               <CustomHeader
                 title="Properties"
-                backgroundColor={headerBackgroundColor}
-                titleColor={headerTitleColor}
-              />
-            ),
-          }}
-        />
-        <Stack.Screen
-          name={ROUTES.ADD_PROPERTY}
-          component={AddProperty}
-          options={{
-            headerShown: true,
-            header: () => (
-              <CustomHeader
-                title="Add Property"
-                backgroundColor={headerBackgroundColor}
-                titleColor={headerTitleColor}
-              />
-            ),
-          }}
-        />
-        <Stack.Screen
-          name={ROUTES.PROPERTY_DETAILS}
-          component={PropertyDetails}
-          options={{
-            headerShown: true,
-            header: () => (
-              <CustomHeader
-                title="Property Details"
-                backgroundColor={headerBackgroundColor}
-                titleColor={headerTitleColor}
-              />
-            ),
-          }}
-        />
-        <Stack.Screen
-          name={ROUTES.ADD_UNIT}
-          component={AddUnit}
-          options={{
-            headerShown: true,
-            header: () => (
-              <CustomHeader
-                title="Add Unit"
                 backgroundColor={headerBackgroundColor}
                 titleColor={headerTitleColor}
               />
