@@ -83,7 +83,21 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   // Use form exit confirmation hook
   useFormExitConfirmation({
     navigation,
-    targetRoute: ROUTES.UNIT_DETAILS,
+    targetRoute: 'UnitsFlow',
+    forceTargetRoute: true,
+    targetParams: {
+      screen: ROUTES.UNIT_DETAILS,
+      params: {
+        unitId: route.params.unitId,
+        unitName: unitName,
+        areaSize: areaSize,
+        unitStatus: unitStatus,
+        unitType: unitType,
+        propertyPart: propertyPart,
+        unitImage: unitImage,
+        haveContract: haveContract,
+      },
+    },
   });
 
   // Handle tenant selection options

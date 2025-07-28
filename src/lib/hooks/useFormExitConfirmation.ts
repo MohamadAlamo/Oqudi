@@ -8,6 +8,7 @@ interface UseFormExitConfirmationProps {
   targetParams?: any;
   title?: string;
   message?: string;
+  forceTargetRoute?: boolean; // New prop to force navigation to target route
 }
 
 export const useFormExitConfirmation = ({
@@ -16,6 +17,7 @@ export const useFormExitConfirmation = ({
   targetParams,
   title = 'Discard changes?',
   message = 'You have unsaved changes. Are you sure you want to discard them and leave the screen?',
+  forceTargetRoute = false, // Default to false for backward compatibility
 }: UseFormExitConfirmationProps) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(true);
 
@@ -30,22 +32,43 @@ export const useFormExitConfirmation = ({
             // Allow navigation by setting hasUnsavedChanges to false
             setHasUnsavedChanges(false);
 
-            // Dispatch the action that was prevented
-            if (e.data.action) {
-              navigation.dispatch(e.data.action);
-            } else {
-              // Fallback navigation
-              if (targetRoute) {
+            // If forceTargetRoute is true, always navigate to target route
+            if (forceTargetRoute && targetRoute) {
+              // Try different navigation approaches
+              try {
+                // First, try to navigate directly
                 navigation.navigate(targetRoute, targetParams);
+              } catch (error) {
+                console.log(
+                  'Direct navigation failed, trying parent navigator',
+                );
+                // If that fails, try the parent navigator
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate(targetRoute, targetParams);
+                } else {
+                  // Fallback: just go back
+                  navigation.goBack();
+                }
+              }
+            } else {
+              // Original behavior
+              if (e.data.action) {
+                navigation.dispatch(e.data.action);
               } else {
-                navigation.goBack();
+                // Fallback navigation
+                if (targetRoute) {
+                  navigation.navigate(targetRoute, targetParams);
+                } else {
+                  navigation.goBack();
+                }
               }
             }
           },
         },
       ]);
     },
-    [title, message, targetRoute, targetParams, navigation],
+    [title, message, targetRoute, targetParams, navigation, forceTargetRoute],
   );
 
   useEffect(() => {
