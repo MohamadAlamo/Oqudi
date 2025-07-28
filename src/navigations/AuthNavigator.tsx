@@ -10,6 +10,7 @@ import {
   AddUnit,
   AddContract,
 } from '../screens';
+import NewSchedual from '../screens/contract/NewSchedual';
 import {COLORS, ROUTES} from '../lib/constants';
 import BottomTabNavigator from './BottomTabNavigator';
 import CustomHeader from '../components/CustomHeader';
@@ -169,6 +170,21 @@ function AuthNavigator() {
             header: () => (
               <CustomHeader
                 title="Add Contract"
+                backgroundColor={headerBackgroundColor}
+                titleColor={headerTitleColor}
+              />
+            ),
+          }}
+        />
+
+        <Stack.Screen
+          name={ROUTES.NEWSCHEDUAL}
+          component={NewSchedual}
+          options={{
+            headerShown: true,
+            header: () => (
+              <CustomHeader
+                title="New Schedule"
                 backgroundColor={headerBackgroundColor}
                 titleColor={headerTitleColor}
               />

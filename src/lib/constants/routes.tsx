@@ -15,6 +15,7 @@ const ROUTES = {
   UNIT_DETAILS: 'UnitDetails',
   PROPERTY_DETAILS: 'PropertyDetails',
   ADDCONTRACT: 'AddContract',
+  NEWSCHEDUAL: 'NewSchedual',
 } as const;
 
 export type TRoutes = (typeof ROUTES)[keyof typeof ROUTES];

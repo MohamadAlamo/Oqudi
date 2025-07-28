@@ -1,20 +1,10 @@
 import React, {useMemo, useState, useEffect} from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  Modal,
-} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
-import Vector from '../../assets/icons/Vector.svg';
-import DownIcon from '../../assets/icons/DownIcon.svg';
 
 import DatePicker from '../../components/DatePicker';
 import Button from '../../components/Button';
@@ -22,7 +12,7 @@ import {
   getResponsiveFontSize,
   getResponsiveSpacing,
 } from '../../lib/helpers/fontScaling';
-interface AddContractProps {
+interface NewSchedualProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
 }
@@ -44,17 +34,8 @@ const safeGetResponsiveFontSize = (size: number): number => {
     return size;
   }
 };
-const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
-  const {
-    unitStatus,
-    unitName,
-    areaSize,
-    unitType,
-    propertyPart,
-    unitImage,
-    haveContract,
-    selectedTenant,
-  } = route.params;
+const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
+  const {selectedTenant} = route.params || {};
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
@@ -78,28 +59,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       setCurrentSelectedTenant(selectedTenant);
     }
   }, [selectedTenant]);
-
-  // Handle tenant selection options
-  const handleTenantOptionPress = () => {
-    setShowTenantOptions(true);
-  };
-
-  const handleAddFromTenantList = () => {
-    setShowTenantOptions(false);
-    navigation.navigate(ROUTES.TENANTS, {
-      selectionMode: true,
-      returnTo: 'AddContract',
-      originalParams: route.params,
-    });
-  };
-
-  const handleAddNewTenant = () => {
-    setShowTenantOptions(false);
-    navigation.navigate(ROUTES.ADDTENANT, {
-      returnTo: 'AddContract',
-      originalParams: route.params,
-    });
-  };
 
   // Calculate duration between dates
   const calculateDuration = (start: Date, end: Date): string => {
@@ -137,36 +96,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Image source={unitImage} style={styles.image} />
-          <View style={styles.infoContainer}>
-            <Text style={styles.unitName}>{unitName}</Text>
-            <View style={styles.areaContainer}>
-              <Text style={styles.areaIcon}>
-                <Vector />
-              </Text>
-              <Text style={styles.areaText}>{areaSize} m²</Text>
-            </View>
-            <View
-              style={[
-                styles.statusButton,
-                status === 'Leased' ? styles.leased : styles.available,
-              ]}>
-              <Text style={styles.statusText}>{unitStatus}</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.typeContainer}>
-          <Text style={styles.type}>
-            {unitType.charAt(0).toUpperCase() + unitType.slice(1).toLowerCase()}
-          </Text>
-          <Text
-            style={
-              styles.propertyName
-            }>{`Part of the property ( ${propertyPart} )`}</Text>
-        </View>
-
         {/* Contract Dates Section */}
         <View style={styles.dateSection}>
           <View style={styles.dateLabelsRow}>
@@ -190,75 +119,8 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           </View>
         </View>
 
-        {/* Tenant Selection */}
-        <View style={styles.tenantSection}>
-          <Text style={styles.sectionLabel}>Tenant*</Text>
-          <TouchableOpacity
-            style={[
-              styles.tenantButton,
-              currentSelectedTenant && styles.tenantButtonSelected,
-            ]}
-            onPress={handleTenantOptionPress}>
-            <Text
-              style={[
-                styles.tenantButtonText,
-                currentSelectedTenant && styles.tenantButtonTextSelected,
-              ]}>
-              {currentSelectedTenant
-                ? `${currentSelectedTenant.name?.firstName} ${currentSelectedTenant.name?.lastName}`
-                : 'Add tenant'}
-            </Text>
-            <Text style={styles.dropdownIcon}>
-              <DownIcon />
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Tenant Options Modal */}
-        <Modal
-          visible={showTenantOptions}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowTenantOptions(false)}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowTenantOptions(false)}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity
-                style={styles.modalOption}
-                onPress={handleAddFromTenantList}>
-                <Text style={styles.modalOptionText}>Add from tenant list</Text>
-              </TouchableOpacity>
-              <View style={styles.modalSeparator} />
-              <TouchableOpacity
-                style={styles.modalOption}
-                onPress={handleAddNewTenant}>
-                <Text style={styles.modalOptionText}>Add new tenant</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-
-        {/* Payment Schedule */}
-        <View style={styles.paymentSection}>
-          <Text style={styles.sectionLabel}>Payment schedule*</Text>
-          <TouchableOpacity
-            style={styles.scheduleButton}
-            onPress={() => navigation.navigate(ROUTES.NEWSCHEDUAL)}>
-            <Text style={styles.scheduleButtonText}>Add Schedule</Text>
-            <Text style={styles.plusIcon}>+</Text>
-          </TouchableOpacity>
-          <Text style={styles.scheduleDescription}>
-            This tool helps you to generate a schedule of all the rents due
-            using a simple tool. The application will allow you to follow-up on
-            all rents due. You can always add, edit or delete payments
-          </Text>
-        </View>
-
-        {/* Save Button */}
         <Button
-          title="Save"
+          title="Schedule of payment"
           onPress={() => {}}
           backgroundColor={COLORS.primary}
           titleColor="#331800"
@@ -584,4 +446,4 @@ const Styles = (theme: ThemeState) =>
     },
   });
 
-export default AddContract;
+export default NewSchedual;

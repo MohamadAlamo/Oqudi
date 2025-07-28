@@ -9,6 +9,7 @@ import {useSelector} from 'react-redux';
 import AddProperty from '../screens/properties/AddProperty';
 import {ThemeState} from '../app/redux/themeSlice';
 import PropertyDetails from '../screens/properties/PropertyDetails';
+import AddUnit from '../screens/units/AddUnit';
 const Stack = createStackNavigator();
 
 function PropertyNavigator() {
@@ -21,11 +22,7 @@ function PropertyNavigator() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Navigator
-        screenOptions={{
-          headerBackTitleVisible: false,
-        }}
-        initialRouteName={ROUTES.PROPERTIES}>
+      <Stack.Navigator initialRouteName={ROUTES.PROPERTIES}>
         <Stack.Screen
           name={ROUTES.PROPERTIES}
           component={Properties}
@@ -62,6 +59,20 @@ function PropertyNavigator() {
             header: () => (
               <CustomHeader
                 title="Property Details"
+                backgroundColor={headerBackgroundColor}
+                titleColor={headerTitleColor}
+              />
+            ),
+          }}
+        />
+        <Stack.Screen
+          name={ROUTES.ADD_UNIT}
+          component={AddUnit}
+          options={{
+            headerShown: true,
+            header: () => (
+              <CustomHeader
+                title="Add Unit"
                 backgroundColor={headerBackgroundColor}
                 titleColor={headerTitleColor}
               />
