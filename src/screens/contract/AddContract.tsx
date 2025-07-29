@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  Alert,
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
@@ -154,6 +155,30 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
   };
 
+  // Handle payment schedule navigation with date validation
+  const handlePaymentSchedulePress = () => {
+    // Validate that dates are selected
+    if (!startDate || !endDate) {
+      Alert.alert(
+        'Error',
+        'Please select both start date and end date before creating a payment schedule',
+      );
+      return;
+    }
+
+    // Validate that end date is after start date
+    if (endDate <= startDate) {
+      Alert.alert('Error', 'End date must be after start date');
+      return;
+    }
+
+    // Navigate to NewSchedule with dates
+    navigation.navigate(ROUTES.NEWSCHEDUAL, {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+  };
+
   console.log(route, 'console.log(route.params);console.log(route.params);');
 
   return (
@@ -273,7 +298,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           <Text style={styles.sectionLabel}>Payment schedule*</Text>
           <TouchableOpacity
             style={styles.scheduleButton}
-            onPress={() => navigation.navigate(ROUTES.NEWSCHEDUAL)}>
+            onPress={handlePaymentSchedulePress}>
             <Text style={styles.scheduleButtonText}>Add Schedule</Text>
             <Text style={styles.plusIcon}>+</Text>
           </TouchableOpacity>
