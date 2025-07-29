@@ -139,11 +139,15 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
     }
 
     console.log({result});
-    // navigation.navigate(ROUTES.PROPERTIES);
+    // Navigate to MainApp which contains the MainNavigator with BottomTabs
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{name: ROUTES.PROPERTIES}],
+        routes: [
+          {
+            name: 'MainApp',
+          },
+        ],
       }),
     );
   };

@@ -57,7 +57,10 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
 
   return (
     <View style={styles.parentContainer}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           {data?.data.map(item => (
             <TenantCard
@@ -99,6 +102,9 @@ const Styles = (theme: ThemeState) =>
     scrollView: {
       flex: 1,
     },
+    scrollViewContent: {
+      flexGrow: 1,
+    },
     addButton: {
       position: 'absolute',
       bottom: 80,
@@ -111,6 +117,7 @@ const Styles = (theme: ThemeState) =>
       borderTopLeftRadius: 12,
       backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,
       minHeight: Dimensions.get('window').height,
+      paddingBottom: 120, // Add padding to account for floating action button
     },
     container2: {
       flex: 1,

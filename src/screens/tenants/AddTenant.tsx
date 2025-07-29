@@ -6,6 +6,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {useSelector} from 'react-redux';
@@ -36,16 +37,164 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
   const [inputVatNumber, setInputVatNumber] = useState('');
   const [inputAdditional, setInputAdditional] = useState('');
 
+  // Validation error states
+  const [firstNameError, setFirstNameError] = useState<boolean>(false);
+  const [lastNameError, setLastNameError] = useState<boolean>(false);
+  const [phoneError, setPhoneError] = useState<boolean>(false);
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [addressError, setAddressError] = useState<boolean>(false);
+  const [vatNumberError, setVatNumberError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const [regTenant] = useCreateTenantMutation();
 
-  // Use form exit confirmation hook - navigate back to Tenants list on discard
+  // Use form exit confirmation hook - navigate back to previous screen on discard
   useFormExitConfirmation({
     navigation,
-    targetRoute: 'BottomTabs',
-    targetParams: {screen: ROUTES.TENANTS},
+    // No targetRoute specified - will use navigation.goBack() as fallback
   });
 
+  // Validation functions
+  const validateName = (name: string): boolean => {
+    return name.trim().length >= 2;
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    return phone.trim().length >= 8; // Minimum phone number length
+  };
+
+  const validateAddress = (address: string): boolean => {
+    return address.trim().length >= 5; // Minimum address length
+  };
+
+  const validateVatNumber = (vatNumber: string): boolean => {
+    return vatNumber.trim().length >= 3; // Minimum VAT number length
+  };
+
+  // Handle input changes with validation
+  const handleFirstNameChange = (text: string) => {
+    setInputFirstName(text);
+    if (text.length > 0) {
+      setFirstNameError(!validateName(text));
+    } else {
+      setFirstNameError(false);
+    }
+  };
+
+  const handleLastNameChange = (text: string) => {
+    setInputLastName(text);
+    if (text.length > 0) {
+      setLastNameError(!validateName(text));
+    } else {
+      setLastNameError(false);
+    }
+  };
+
+  const handlePhoneChange = (text: string) => {
+    setInputPhone(text);
+    if (text.length > 0) {
+      setPhoneError(!validatePhone(text));
+    } else {
+      setPhoneError(false);
+    }
+  };
+
+  const handleEmailChange = (text: string) => {
+    setInputEmail(text);
+    if (text.length > 0) {
+      setEmailError(!validateEmail(text));
+    } else {
+      setEmailError(false);
+    }
+  };
+
+  const handleAddressChange = (text: string) => {
+    setInputAddress(text);
+    if (text.length > 0) {
+      setAddressError(!validateAddress(text));
+    } else {
+      setAddressError(false);
+    }
+  };
+
+  const handleVatNumberChange = (text: string) => {
+    setInputVatNumber(text);
+    if (text.length > 0) {
+      setVatNumberError(!validateVatNumber(text));
+    } else {
+      setVatNumberError(false);
+    }
+  };
+
   const handleAddTenant = async () => {
+    // Validate inputs before API call
+    const isFirstNameValid = validateName(inputFirstName);
+    const isLastNameValid = validateName(inputLastName);
+    const isPhoneValid = validatePhone(inputPhone);
+    const isEmailValid = validateEmail(inputEmail);
+    const isAddressValid = validateAddress(inputAddress);
+    const isVatNumberValid =
+      inputVatNumber.trim() === '' || validateVatNumber(inputVatNumber); // VAT is optional
+
+    // Set validation errors
+    setFirstNameError(!isFirstNameValid && inputFirstName.length > 0);
+    setLastNameError(!isLastNameValid && inputLastName.length > 0);
+    setPhoneError(!isPhoneValid && inputPhone.length > 0);
+    setEmailError(!isEmailValid && inputEmail.length > 0);
+    setAddressError(!isAddressValid && inputAddress.length > 0);
+    setVatNumberError(!isVatNumberValid && inputVatNumber.length > 0);
+
+    // Check if required inputs are empty
+    if (!inputFirstName.trim()) {
+      setFirstNameError(true);
+      Alert.alert('Error', 'First name is required');
+      return;
+    }
+
+    if (!inputLastName.trim()) {
+      setLastNameError(true);
+      Alert.alert('Error', 'Last name is required');
+      return;
+    }
+
+    if (!inputPhone.trim()) {
+      setPhoneError(true);
+      Alert.alert('Error', 'Phone number is required');
+      return;
+    }
+
+    if (!inputEmail.trim()) {
+      setEmailError(true);
+      Alert.alert('Error', 'Email is required');
+      return;
+    }
+
+    if (!inputAddress.trim()) {
+      setAddressError(true);
+      Alert.alert('Error', 'Address is required');
+      return;
+    }
+
+    // Check validation
+    if (
+      !isFirstNameValid ||
+      !isLastNameValid ||
+      !isPhoneValid ||
+      !isEmailValid ||
+      !isAddressValid ||
+      !isVatNumberValid
+    ) {
+      Alert.alert('Validation Error', 'Please fix the errors above');
+      return;
+    }
+
+    setIsLoading(true);
+
     const [result, error] = await asyncHandler(
       regTenant({
         name: {
@@ -60,8 +209,28 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
       }).unwrap(),
     );
 
+    setIsLoading(false);
+
     if (error) {
-      return error;
+      console.log({error});
+      let errorMessage = 'Failed to create tenant. Please try again';
+
+      // Handle different types of API errors
+      if (error && typeof error === 'object' && 'status' in error) {
+        const apiError = error as any;
+        if (apiError.status === 409) {
+          errorMessage = 'Tenant with this email already exists';
+        } else if (apiError.status === 400) {
+          errorMessage = 'Please check your information';
+        } else if (apiError.status === 500) {
+          errorMessage = 'Server error. Please try again later';
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      Alert.alert('Failed to Create Tenant', errorMessage);
+      return;
     }
 
     // Check if we came from AddContract
@@ -90,7 +259,7 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
       });
     } else {
       // Default behavior - go to tenants list
-      navigation.navigate(ROUTES.TENANTS);
+      navigation.navigate('BottomTabs', {screen: ROUTES.TENANTS});
     }
   };
 
@@ -109,81 +278,87 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
               <Input
                 label="First name"
                 value={inputFirstName}
-                onChangeText={setInputFirstName}
+                onChangeText={handleFirstNameChange}
                 placeholder="Enter first name"
                 keyboardType="default"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={firstNameError}
+                success={inputFirstName.length > 0 && !firstNameError}
               />
               <Input
                 label="Last name"
                 value={inputLastName}
-                onChangeText={setInputLastName}
+                onChangeText={handleLastNameChange}
                 placeholder="Enter last name"
                 keyboardType="default"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={lastNameError}
+                success={inputLastName.length > 0 && !lastNameError}
               />
               <Input
                 label="Phone"
                 value={inputPhone}
-                onChangeText={setInputPhone}
+                onChangeText={handlePhoneChange}
                 placeholder="Enter phone number"
-                keyboardType="number-pad"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
+                keyboardType="phone-pad"
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={phoneError}
+                success={inputPhone.length > 0 && !phoneError}
               />
               <Input
                 label="Email"
                 value={inputEmail}
-                onChangeText={setInputEmail}
+                onChangeText={handleEmailChange}
                 placeholder="Enter email"
                 keyboardType="email-address"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={emailError}
+                success={inputEmail.length > 0 && !emailError}
               />
               <Input
                 label="Address"
                 value={inputAddress}
-                onChangeText={setInputAddress}
-                placeholder="Enter tenant’s address"
+                onChangeText={handleAddressChange}
+                placeholder="Enter tenant's address"
                 keyboardType="default"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={addressError}
+                success={inputAddress.length > 0 && !addressError}
               />
               <Input
                 label="VAT number"
                 value={inputVatNumber}
-                onChangeText={setInputVatNumber}
-                placeholder="Enter VAT number"
+                onChangeText={handleVatNumberChange}
+                placeholder="Enter VAT number (optional)"
                 keyboardType="number-pad"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={vatNumberError}
+                success={inputVatNumber.length > 0 && !vatNumberError}
               />
               <Input
                 label="Additional information"
                 value={inputAdditional}
                 onChangeText={setInputAdditional}
-                placeholder="Enter Additional information"
+                placeholder="Enter Additional information (optional)"
                 keyboardType="default"
-                borderColor={theme === 'dark' ? '#24232A' : 'white'}
                 labelStyle={styles.label}
-                placeholderTextColor={theme === 'dark' ? 'grey' : 'grey'}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
               />
             </ScrollView>
             <View style={styles.btnSave}>
               <Button
-                title="Next"
+                title={isLoading ? 'Loading...' : 'Next'}
                 onPress={handleAddTenant}
                 backgroundColor={COLORS.primary}
                 titleColor="#331800"
                 borderColor={theme === 'dark' ? COLORS.primary : COLORS.white}
+                disabled={isLoading}
               />
             </View>
           </View>
@@ -222,6 +397,7 @@ const Styles = (theme: ThemeState) =>
     inputscontainer: {
       flex: 1,
       top: 30,
+      width: '100%',
     },
     textStarted: {
       marginBottom: 20,

@@ -189,7 +189,8 @@ const Register: React.FC<RegisterProps> = ({navigation}) => {
     }
 
     console.log({result});
-    navigation.navigate(ROUTES.PROPERTIES);
+    // Navigate to MainApp which contains the MainNavigator with BottomTabs
+    navigation.navigate('MainApp');
   };
 
   return (
