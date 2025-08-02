@@ -172,10 +172,14 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       return;
     }
 
-    // Navigate to NewSchedule with dates
+    // Calculate duration once and pass it along with dates
+    const duration = calculateDuration(startDate, endDate);
+
+    // Navigate to NewSchedule with dates and duration
     navigation.navigate(ROUTES.NEWSCHEDUAL, {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
+      duration: duration,
     });
   };
 

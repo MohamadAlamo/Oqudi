@@ -40,8 +40,8 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
-  // Get contract dates from route params (from AddContract.tsx)
-  const {startDate, endDate} = route.params || {};
+  // Get contract dates and duration from route params (from AddContract.tsx)
+  const {startDate, endDate, duration} = route.params || {};
 
   // Fallback dates for UI display (will be replaced by actual dates from AddContract)
   const displayStartDate = startDate ? new Date(startDate) : new Date();
@@ -152,30 +152,130 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     return `${day}.${month}.${year}`;
   };
 
-  // Calculate duration between dates
-  const calculateDuration = (start: Date, end: Date): string => {
-    if (!start || !end) return '';
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Parse duration string to get total months
+  const parseDurationToMonths = (durationStr: string): number => {
+    if (!durationStr) return 12; // Default to 1 year
 
-    if (diffDays < 30) {
-      return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
-    } else if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} month${months > 1 ? 's' : ''}`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      const remainingDays = diffDays % 365;
-      const months = Math.floor(remainingDays / 30);
+    let totalMonths = 0;
+    const yearMatch = durationStr.match(/(\d+)\s*year/i);
+    const monthMatch = durationStr.match(/(\d+)\s*month/i);
+    const dayMatch = durationStr.match(/(\d+)\s*day/i);
 
-      if (months === 0) {
-        return `${years} year${years > 1 ? 's' : ''}`;
-      } else {
-        return `${years} year${years > 1 ? 's' : ''} ${months} month${
-          months > 1 ? 's' : ''
-        }`;
-      }
+    if (yearMatch) {
+      totalMonths += parseInt(yearMatch[1]) * 12;
     }
+    if (monthMatch) {
+      totalMonths += parseInt(monthMatch[1]);
+    }
+    if (dayMatch) {
+      // Convert days to months (approximate)
+      totalMonths += Math.ceil(parseInt(dayMatch[1]) / 30);
+    }
+
+    return totalMonths || 12; // Default to 12 months if parsing fails
+  };
+
+  // Get payment interval in months based on frequency
+  const getPaymentIntervalMonths = (frequency: string): number => {
+    switch (frequency) {
+      case 'Monthly':
+        return 1;
+      case 'Quarterly':
+        return 3;
+      case 'Semi-annually':
+        return 6;
+      case 'Annually':
+        return 12;
+      default:
+        return 1;
+    }
+  };
+
+  // Calculate payment schedule
+  const calculatePaymentSchedule = () => {
+    const totalMonths = parseDurationToMonths(duration || '1 year');
+    const intervalMonths = getPaymentIntervalMonths(paymentFrequency);
+    const numberOfPayments = Math.ceil(totalMonths / intervalMonths);
+
+    // Parse amounts
+    const totalRentalAmount = parseFloat(rentalAmount.replace(/,/g, '')) || 0;
+    const serviceChargeAmount =
+      parseFloat(serviceCharge.replace(/,/g, '')) || 0;
+    const vatPercent = parseFloat(vatPercentage) || 0;
+    const securityDepositAmount =
+      parseFloat(securityDeposit.replace(/,/g, '')) || 0;
+
+    // Calculate base rental per payment
+    const baseRentalPerPayment = totalRentalAmount / numberOfPayments;
+
+    // Calculate subtotal (base rental + service charge)
+    const subtotalPerPayment = baseRentalPerPayment + serviceChargeAmount;
+
+    // Calculate VAT amount
+    const vatAmountPerPayment = subtotalPerPayment * (vatPercent / 100);
+
+    // Calculate total per payment
+    const totalPerPayment = subtotalPerPayment + vatAmountPerPayment;
+
+    // Generate payment schedule with dates
+    const payments = [];
+    const contractStartDate = new Date(startDate);
+
+    for (let i = 0; i < numberOfPayments; i++) {
+      const paymentDate = new Date(contractStartDate);
+      paymentDate.setMonth(paymentDate.getMonth() + i * intervalMonths);
+
+      // For the last payment, adjust if there's any rounding difference
+      const isLastPayment = i === numberOfPayments - 1;
+      let adjustedTotal = totalPerPayment;
+
+      if (isLastPayment) {
+        // Calculate what the total should be vs what we've calculated
+        const calculatedTotal = totalPerPayment * numberOfPayments;
+        const expectedTotal =
+          totalRentalAmount +
+          serviceChargeAmount * numberOfPayments +
+          (totalRentalAmount + serviceChargeAmount * numberOfPayments) *
+            (vatPercent / 100);
+        const difference =
+          expectedTotal - totalPerPayment * (numberOfPayments - 1);
+        adjustedTotal = difference;
+      }
+
+      payments.push({
+        paymentNumber: i + 1,
+        dueDate: paymentDate,
+        formattedDueDate: formatDate(paymentDate),
+        baseRental: parseFloat(baseRentalPerPayment.toFixed(2)),
+        serviceCharge: serviceChargeAmount,
+        subtotal: parseFloat(subtotalPerPayment.toFixed(2)),
+        vatAmount: parseFloat(vatAmountPerPayment.toFixed(2)),
+        totalAmount: parseFloat(adjustedTotal.toFixed(2)),
+        currency: rentalCurrency,
+      });
+    }
+
+    return {
+      numberOfPayments,
+      totalContractValue: totalRentalAmount,
+      totalServiceCharges: serviceChargeAmount * numberOfPayments,
+      totalVATAmount: parseFloat(
+        (subtotalPerPayment * numberOfPayments * (vatPercent / 100)).toFixed(2),
+      ),
+      grandTotal: parseFloat(
+        (
+          totalRentalAmount +
+          serviceChargeAmount * numberOfPayments +
+          (totalRentalAmount + serviceChargeAmount * numberOfPayments) *
+            (vatPercent / 100)
+        ).toFixed(2),
+      ),
+      securityDeposit: securityDepositAmount,
+      payments,
+      paymentFrequency,
+      contractDuration: duration,
+      vatPercentage: vatPercent,
+    };
   };
 
   // Handle form submission
@@ -243,12 +343,15 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
       return;
     }
 
+    // Calculate payment schedule
+    const paymentScheduleData = calculatePaymentSchedule();
+
     // Create comprehensive form data with all details
     const formData = {
       contractDates: {
         startDate: displayStartDate,
         endDate: displayEndDate,
-        duration: calculateDuration(displayStartDate, displayEndDate),
+        duration: duration, // Use duration from route params
         formattedStartDate: formatDate(displayStartDate),
         formattedEndDate: formatDate(displayEndDate),
       },
@@ -273,43 +376,33 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         numericValue: parseFloat(securityDeposit.replace(/,/g, '')),
       },
       formSubmittedAt: new Date().toISOString(),
+      // Add calculated payment schedule data
+      paymentSchedule: paymentScheduleData,
     };
 
-    // Console log all form data with currencies and percentage
-    // console.log('=== NEW SCHEDULE FORM DATA ===');
-    // console.log(
-    //   'Contract Start Date:',
-    //   formData.contractDates.formattedStartDate,
-    // );
-    // console.log('Contract End Date:', formData.contractDates.formattedEndDate);
-    // console.log('Contract Duration:', formData.contractDates.duration);
-    // console.log(
-    //   'Rental Payment Invoice:',
-    //   formData.rentalPaymentInvoice.amount,
-    //   formData.rentalPaymentInvoice.currency,
-    // );
-    // console.log('Payment Frequency:', formData.paymentFrequency);
-    // console.log(
-    //   'Service Charge Per Payment:',
-    //   formData.serviceChargePerPayment.amount,
-    //   formData.serviceChargePerPayment.currency,
-    // );
-    // console.log('VAT Per Payment:', formData.vatPerPayment.percentage + '%');
-    // console.log(
-    //   'Security Deposit Paid:',
-    //   formData.securityDepositPaid.amount,
-    //   formData.securityDepositPaid.currency,
-    // );
+    // Console log all form data with payment calculations
+    console.log('=== PAYMENT SCHEDULE CALCULATION ===');
+    console.log('Number of Payments:', paymentScheduleData.numberOfPayments);
+    console.log('Payment Frequency:', paymentScheduleData.paymentFrequency);
+    console.log(
+      'Total Contract Value:',
+      paymentScheduleData.totalContractValue,
+    );
+    console.log('Grand Total (with VAT):', paymentScheduleData.grandTotal);
+    console.log('Security Deposit:', paymentScheduleData.securityDeposit);
+    console.log('Individual Payments:', paymentScheduleData.payments);
     console.log('Complete Form Data Object:', formData);
     console.log('===============================');
 
     setIsLoading(false);
 
-    // Show success message
-    // Alert.alert('Success', 'Schedule data has been logged to console');
+    // Navigate to ScheduleOfPayments with all calculated data
     navigation.navigate(ROUTES.SCHEDULE_OF_PAYMENTS, {
-      // startDate: startDate.toISOString(),
-      // endDate: endDate.toISOString(),
+      startDate: startDate,
+      endDate: endDate,
+      duration: duration,
+      formData: formData,
+      paymentSchedule: paymentScheduleData,
     });
     // TODO: Navigate to next screen or save data to API
   };
@@ -346,9 +439,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
               </View>
               <Text style={styles.dateSeparator}>/</Text>
               <View style={styles.durationContainer}>
-                <Text style={styles.durationText}>
-                  {calculateDuration(displayStartDate, displayEndDate)}
-                </Text>
+                <Text style={styles.durationText}>{duration}</Text>
               </View>
             </View>
           </View>

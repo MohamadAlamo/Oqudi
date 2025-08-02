@@ -41,8 +41,36 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
   const styles = useMemo(() => Styles(theme), [theme]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Get all data from route params
+  const {startDate, endDate, duration, formData, paymentSchedule} =
+    route.params || {};
+
+  // Format date for display
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+
+  // Format currency display
+  const formatCurrency = (amount: number, currency: string): string => {
+    return `${currency} ${amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   // Handle form submission
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    // TODO: Save payment schedule to API
+    console.log('Saving payment schedule:', paymentSchedule);
+    setIsLoading(false);
+  };
+
   return (
     <View style={styles.parentContainer}>
       <ScrollView
@@ -57,18 +85,70 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
             </View>
             <View style={styles.dateRow}>
               <View style={styles.dateDisplayContainer}>
-                <Text style={styles.dateText}></Text>
+                <Text style={styles.dateText}>{formatDate(startDate)}</Text>
               </View>
               <Text style={styles.dateSeparator}>-</Text>
               <View style={styles.dateDisplayContainer}>
-                <Text style={styles.dateText}></Text>
+                <Text style={styles.dateText}>{formatDate(endDate)}</Text>
               </View>
               <Text style={styles.dateSeparator}>/</Text>
               <View style={styles.durationContainer}>
-                <Text style={styles.durationText}></Text>
+                <Text style={styles.durationText}>{duration}</Text>
               </View>
             </View>
           </View>
+
+          {/* Payment Cards */}
+          {paymentSchedule?.payments?.map((payment: any, index: number) => (
+            <View key={index} style={styles.paymentCard}>
+              <View style={styles.paymentHeader}>
+                <Text style={styles.paymentNumber}>
+                  № {payment.paymentNumber}
+                </Text>
+              </View>
+
+              <View style={styles.paymentContent}>
+                <View style={styles.paymentRow}>
+                  <View style={styles.paymentColumn}>
+                    <Text style={styles.paymentLabel}>Due date</Text>
+                    <Text style={styles.paymentValue}>
+                      {payment.formattedDueDate}
+                    </Text>
+                  </View>
+                  <View style={styles.paymentColumn}>
+                    <Text style={styles.paymentLabel}>Rent value</Text>
+                    <Text style={styles.paymentValue}>
+                      {formatCurrency(payment.baseRental, payment.currency)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.paymentRow}>
+                  <View style={styles.paymentColumn}>
+                    <Text style={styles.paymentLabel}>Services</Text>
+                    <Text style={styles.paymentValue}>
+                      {formatCurrency(payment.serviceCharge, payment.currency)}{' '}
+                      ({paymentSchedule.vatPercentage}%)
+                    </Text>
+                  </View>
+                  <View style={styles.paymentColumn}>
+                    <Text style={styles.paymentLabel}>VAT</Text>
+                    <Text style={styles.paymentValue}>
+                      {formatCurrency(payment.vatAmount, payment.currency)} (
+                      {paymentSchedule.vatPercentage}%)
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.totalSection}>
+                  <Text style={styles.totalLabel}>Total value</Text>
+                  <Text style={styles.totalValue}>
+                    {formatCurrency(payment.totalAmount, payment.currency)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
 
           <View style={styles.buttonContainer}>
             <Button
@@ -100,7 +180,7 @@ const Styles = (theme: ThemeState) =>
       alignItems: 'center',
       borderTopRightRadius: 12,
       borderTopLeftRadius: 12,
-      backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,
+      backgroundColor: theme === 'light' ? '#F4F3F2' : COLORS.backgroundDark,
       padding: 20,
       paddingBottom: 40,
     },
@@ -154,10 +234,8 @@ const Styles = (theme: ThemeState) =>
       alignItems: 'center',
       borderWidth: 1,
       borderRadius: 14,
-      backgroundColor:
-        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
-      borderColor:
-        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
+      backgroundColor: theme === 'light' ? COLORS.white : COLORS.CardBackground,
+      borderColor: theme === 'light' ? COLORS.white : COLORS.CardBackground,
     },
     dateText: {
       color: theme === 'light' ? COLORS.black : '#F4F3F2',
@@ -170,7 +248,7 @@ const Styles = (theme: ThemeState) =>
       fontSize: 18,
       fontWeight: 'bold',
       marginHorizontal: 10,
-      marginBottom: 30,
+      marginBottom: 20,
     },
     durationContainer: {
       paddingVertical: safeGetResponsiveSpacing(16),
@@ -182,10 +260,8 @@ const Styles = (theme: ThemeState) =>
       marginBottom: 0,
       borderWidth: 1,
       borderRadius: 14,
-      backgroundColor:
-        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
-      borderColor:
-        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
+      backgroundColor: theme === 'light' ? COLORS.white : COLORS.CardBackground,
+      borderColor: theme === 'light' ? COLORS.white : COLORS.CardBackground,
     },
     durationText: {
       color: theme === 'light' ? COLORS.black : COLORS.white,
@@ -196,6 +272,76 @@ const Styles = (theme: ThemeState) =>
     buttonContainer: {
       width: '100%',
       marginTop: 30,
+    },
+    // Payment card styles - Responsive
+    paymentCard: {
+      width: '100%',
+      backgroundColor: theme === 'light' ? COLORS.white : COLORS.CardBackground,
+      borderRadius: safeGetResponsiveSpacing(16),
+      marginBottom: safeGetResponsiveSpacing(20),
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3.84,
+      elevation: 5,
+      borderWidth: 1,
+      borderColor: theme === 'light' ? '#E5E5E5' : COLORS.CardBackground,
+    },
+    paymentHeader: {
+      paddingHorizontal: safeGetResponsiveSpacing(20),
+      paddingTop: safeGetResponsiveSpacing(20),
+      paddingBottom: safeGetResponsiveSpacing(10),
+      borderBottomWidth: 1,
+      borderBottomColor: theme === 'light' ? '#E5E5E5' : '#333',
+    },
+    paymentNumber: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(18),
+      fontWeight: 'bold',
+    },
+    paymentContent: {
+      padding: safeGetResponsiveSpacing(20),
+    },
+    paymentRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: safeGetResponsiveSpacing(15),
+    },
+    paymentColumn: {
+      flex: 1,
+      marginRight: safeGetResponsiveSpacing(10),
+    },
+    paymentLabel: {
+      color: theme === 'light' ? '#666' : '#ADACB1',
+      fontSize: safeGetResponsiveFontSize(14),
+      fontWeight: '400',
+      marginBottom: safeGetResponsiveSpacing(5),
+    },
+    paymentValue: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(16),
+      fontWeight: '600',
+      flexWrap: 'wrap',
+    },
+    totalSection: {
+      marginTop: safeGetResponsiveSpacing(10),
+      paddingTop: safeGetResponsiveSpacing(15),
+      borderTopWidth: 1,
+      borderTopColor: theme === 'light' ? '#E5E5E5' : '#333',
+    },
+    totalLabel: {
+      color: theme === 'light' ? '#666' : '#ADACB1',
+      fontSize: safeGetResponsiveFontSize(16),
+      fontWeight: '400',
+      marginBottom: safeGetResponsiveSpacing(5),
+    },
+    totalValue: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(20),
+      fontWeight: 'bold',
     },
   });
 
