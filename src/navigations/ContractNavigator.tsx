@@ -8,6 +8,7 @@ import {useSelector} from 'react-redux';
 import {ThemeState} from '../app/redux/themeSlice';
 import AddContract from '../screens/contract/AddContract';
 import NewSchedual from '../screens/contract/NewSchedual';
+import ScheduleOfPayments from '../screens/contract/ScheduleOfPayments';
 
 const Stack = createStackNavigator();
 
@@ -50,6 +51,22 @@ function ContractNavigator() {
             header: () => (
               <CustomHeader
                 title="New Schedule"
+                backgroundColor={headerBackgroundColor}
+                titleColor={headerTitleColor}
+              />
+            ),
+          }}
+        />
+
+        <Stack.Screen
+          name={ROUTES.SCHEDULE_OF_PAYMENTS}
+          component={ScheduleOfPayments}
+          options={{
+            headerShown: true,
+            gestureEnabled: true, // Enable swipe back for schedule screen
+            header: () => (
+              <CustomHeader
+                title="Schedule Of Payments"
                 backgroundColor={headerBackgroundColor}
                 titleColor={headerTitleColor}
               />

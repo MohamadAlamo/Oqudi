@@ -306,11 +306,13 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     setIsLoading(false);
 
     // Show success message
-    Alert.alert('Success', 'Schedule data has been logged to console');
-
+    // Alert.alert('Success', 'Schedule data has been logged to console');
+    navigation.navigate(ROUTES.SCHEDULE_OF_PAYMENTS, {
+      // startDate: startDate.toISOString(),
+      // endDate: endDate.toISOString(),
+    });
     // TODO: Navigate to next screen or save data to API
   };
-
   return (
     <View style={styles.parentContainer}>
       <ScrollView
@@ -358,7 +360,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             currency={rentalCurrency}
             onCurrencyChange={setRentalCurrency}
             label="Rental payment invoice*"
-            placeholder=""
+            placeholder="0,000"
             error={rentalAmountError}
             success={rentalAmount.length > 0 && !rentalAmountError}
             onValidate={validateAmount}
@@ -378,7 +380,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             currency={serviceCurrency}
             onCurrencyChange={setServiceCurrency}
             label="Service charge per payment"
-            placeholder=""
+            placeholder="0,000"
             error={serviceChargeError}
             success={serviceCharge.length > 0 && !serviceChargeError}
             onValidate={validateAmount}

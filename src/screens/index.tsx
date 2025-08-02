@@ -14,3 +14,4 @@ export {default as MyContract} from './settings/MyContract';
 export {default as AddTenant} from './tenants/AddTenant';
 export {default as MySubscription} from './settings/MySubscription';
 export {default as AddContract} from './contract/AddContract';
+export {default as ScheduleOfPayments} from './contract/ScheduleOfPayments';
