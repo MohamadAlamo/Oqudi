@@ -54,8 +54,8 @@ export const PercentageInput: React.FC<PercentageInputProps> = ({
   const styles = theme === 'dark' ? darkStyles : lightStyles;
 
   const getBorderColor = (): string => {
-    if (error) return '#EE6749'; // Red for errors
-    if (success) return '#10B981'; // Green color for success
+    if (error) return COLORS.ErrorBorder;
+    if (success) return COLORS.SuccessBorder;
     return theme === 'dark'
       ? COLORS.CardBackground
       : COLORS.BackgroundLightGray;
@@ -99,7 +99,7 @@ const lightStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    height: safeGetResponsiveSpacing(60),
+    height: safeGetResponsiveSpacing(50),
     borderRadius: 14,
     backgroundColor: COLORS.BackgroundLightGray,
     borderColor: COLORS.BackgroundLightGray,
@@ -153,7 +153,7 @@ const darkStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    height: safeGetResponsiveSpacing(60),
+    height: safeGetResponsiveSpacing(50),
     borderRadius: 14,
     backgroundColor: COLORS.CardBackground,
     borderColor: COLORS.CardBackground,

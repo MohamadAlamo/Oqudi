@@ -276,30 +276,30 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     };
 
     // Console log all form data with currencies and percentage
-    console.log('=== NEW SCHEDULE FORM DATA ===');
-    console.log(
-      'Contract Start Date:',
-      formData.contractDates.formattedStartDate,
-    );
-    console.log('Contract End Date:', formData.contractDates.formattedEndDate);
-    console.log('Contract Duration:', formData.contractDates.duration);
-    console.log(
-      'Rental Payment Invoice:',
-      formData.rentalPaymentInvoice.amount,
-      formData.rentalPaymentInvoice.currency,
-    );
-    console.log('Payment Frequency:', formData.paymentFrequency);
-    console.log(
-      'Service Charge Per Payment:',
-      formData.serviceChargePerPayment.amount,
-      formData.serviceChargePerPayment.currency,
-    );
-    console.log('VAT Per Payment:', formData.vatPerPayment.percentage + '%');
-    console.log(
-      'Security Deposit Paid:',
-      formData.securityDepositPaid.amount,
-      formData.securityDepositPaid.currency,
-    );
+    // console.log('=== NEW SCHEDULE FORM DATA ===');
+    // console.log(
+    //   'Contract Start Date:',
+    //   formData.contractDates.formattedStartDate,
+    // );
+    // console.log('Contract End Date:', formData.contractDates.formattedEndDate);
+    // console.log('Contract Duration:', formData.contractDates.duration);
+    // console.log(
+    //   'Rental Payment Invoice:',
+    //   formData.rentalPaymentInvoice.amount,
+    //   formData.rentalPaymentInvoice.currency,
+    // );
+    // console.log('Payment Frequency:', formData.paymentFrequency);
+    // console.log(
+    //   'Service Charge Per Payment:',
+    //   formData.serviceChargePerPayment.amount,
+    //   formData.serviceChargePerPayment.currency,
+    // );
+    // console.log('VAT Per Payment:', formData.vatPerPayment.percentage + '%');
+    // console.log(
+    //   'Security Deposit Paid:',
+    //   formData.securityDepositPaid.amount,
+    //   formData.securityDepositPaid.currency,
+    // );
     console.log('Complete Form Data Object:', formData);
     console.log('===============================');
 
@@ -358,7 +358,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             currency={rentalCurrency}
             onCurrencyChange={setRentalCurrency}
             label="Rental payment invoice*"
-            placeholder="2,000"
+            placeholder=""
             error={rentalAmountError}
             success={rentalAmount.length > 0 && !rentalAmountError}
             onValidate={validateAmount}
@@ -378,7 +378,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             currency={serviceCurrency}
             onCurrencyChange={setServiceCurrency}
             label="Service charge per payment"
-            placeholder="15"
+            placeholder=""
             error={serviceChargeError}
             success={serviceCharge.length > 0 && !serviceChargeError}
             onValidate={validateAmount}
@@ -389,7 +389,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             value={vatPercentage}
             onChangeText={handleVatPercentageChange}
             label="VAT per payment"
-            placeholder="10"
+            placeholder="%"
             error={vatPercentageError}
             success={vatPercentage.length > 0 && !vatPercentageError}
             onValidate={validatePercentage}
@@ -488,7 +488,7 @@ const Styles = (theme: ThemeState) =>
       marginHorizontal: 5,
       paddingVertical: safeGetResponsiveSpacing(16),
       paddingHorizontal: safeGetResponsiveSpacing(16),
-      height: safeGetResponsiveSpacing(60),
+      height: safeGetResponsiveSpacing(50),
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 1,
@@ -514,11 +514,11 @@ const Styles = (theme: ThemeState) =>
     durationContainer: {
       paddingVertical: safeGetResponsiveSpacing(16),
       paddingHorizontal: safeGetResponsiveSpacing(16),
-      height: safeGetResponsiveSpacing(60),
+      height: safeGetResponsiveSpacing(50),
       justifyContent: 'center',
       alignItems: 'center',
       minWidth: 100,
-      marginBottom: 5,
+      marginBottom: 0,
       borderWidth: 1,
       borderRadius: 14,
       backgroundColor:

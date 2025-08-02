@@ -23,7 +23,7 @@ import {
   getResponsiveFontSize,
   getResponsiveSpacing,
 } from '../../lib/helpers/fontScaling';
-import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
+// import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 interface AddContractProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -81,25 +81,25 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
   }, [selectedTenant]);
 
-  // Use form exit confirmation hook
-  useFormExitConfirmation({
-    navigation,
-    targetRoute: 'UnitsFlow',
-    forceTargetRoute: true,
-    targetParams: {
-      screen: ROUTES.UNIT_DETAILS,
-      params: {
-        unitId: route.params.unitId,
-        unitName: unitName,
-        areaSize: areaSize,
-        unitStatus: unitStatus,
-        unitType: unitType,
-        propertyPart: propertyPart,
-        unitImage: unitImage,
-        haveContract: haveContract,
-      },
-    },
-  });
+  // Use form exit confirmation hook - temporarily commented out to debug
+  // useFormExitConfirmation({
+  //   navigation,
+  //   targetRoute: 'UnitsFlow',
+  //   forceTargetRoute: true,
+  //   targetParams: {
+  //     screen: ROUTES.UNIT_DETAILS,
+  //     params: {
+  //       unitId: route.params.unitId,
+  //       unitName: unitName,
+  //       areaSize: areaSize,
+  //       unitStatus: unitStatus,
+  //       unitType: unitType,
+  //       propertyPart: propertyPart,
+  //       unitImage: unitImage,
+  //       haveContract: haveContract,
+  //     },
+  //   },
+  // });
 
   // Handle tenant selection options
   const handleTenantOptionPress = () => {
@@ -191,7 +191,17 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         </View>
 
         <View style={styles.card}>
-          <Image source={unitImage} style={styles.image} />
+          <Image
+            source={
+              unitImage && typeof unitImage === 'string'
+                ? {uri: unitImage}
+                : unitImage || require('../../assets/img/property.png')
+            }
+            style={styles.image}
+            onError={error => {
+              console.log('Image loading error:', error);
+            }}
+          />
           <View style={styles.infoContainer}>
             <Text style={styles.unitName}>{unitName}</Text>
             <View style={styles.areaContainer}>

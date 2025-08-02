@@ -11,4 +11,6 @@ export default {
   StatusBarLight: '#FFFFFF',
   Delete: '#EE6749',
   CardBackground: '#383642',
+  ErrorBorder: '#EE6749',
+  SuccessBorder: '#4D9E70',
 };
