@@ -66,9 +66,22 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
   // Handle form submission
   const handleSubmit = async () => {
     setIsLoading(true);
-    // TODO: Save payment schedule to API
+
+    // Log the payment schedule data
     console.log('Saving payment schedule:', paymentSchedule);
+
+    // Simulate a brief save operation
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     setIsLoading(false);
+
+    // Navigate back to AddContract with payment schedule data
+    navigation.navigate(ROUTES.ADDCONTRACT, {
+      ...route.params, // Pass through existing params (unitId, etc.)
+      paymentScheduleCompleted: true,
+      paymentScheduleData: paymentSchedule,
+      formData: formData,
+    });
   };
 
   return (

@@ -23,6 +23,7 @@ import {
   getResponsiveFontSize,
   getResponsiveSpacing,
 } from '../../lib/helpers/fontScaling';
+import {useCreateContractMutation} from '../../app/services/api/contracts';
 // import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 interface AddContractProps {
   navigation: StackNavigationProp<any, any>;
@@ -59,6 +60,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
+  const currentUser = useSelector((state: RootState) => state.user);
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
 
@@ -74,12 +76,35 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   );
   const [showTenantOptions, setShowTenantOptions] = useState<boolean>(false);
 
+  // State for payment schedule
+  const [paymentScheduleCompleted, setPaymentScheduleCompleted] =
+    useState<boolean>(false);
+  const [paymentScheduleData, setPaymentScheduleData] = useState<any>(null);
+  const [scheduleFormData, setScheduleFormData] = useState<any>(null);
+
+  // API hook for creating contract
+  const [createContract, {isLoading: isCreatingContract}] =
+    useCreateContractMutation();
+
   // Update selected tenant when route params change
   useEffect(() => {
     if (selectedTenant) {
       setCurrentSelectedTenant(selectedTenant);
     }
   }, [selectedTenant]);
+
+  // Handle payment schedule data from ScheduleOfPayments
+  useEffect(() => {
+    if (route.params?.paymentScheduleCompleted) {
+      setPaymentScheduleCompleted(true);
+      setPaymentScheduleData(route.params.paymentScheduleData);
+      setScheduleFormData(route.params.formData);
+      console.log(
+        'Payment schedule completed:',
+        route.params.paymentScheduleData,
+      );
+    }
+  }, [route.params]);
 
   // Use form exit confirmation hook - temporarily commented out to debug
   // useFormExitConfirmation({
@@ -175,12 +200,137 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     // Calculate duration once and pass it along with dates
     const duration = calculateDuration(startDate, endDate);
 
-    // Navigate to NewSchedule with dates and duration
+    // Navigate to NewSchedule with dates, duration, and all original params
     navigation.navigate(ROUTES.NEWSCHEDUAL, {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       duration: duration,
+      // Pass all original route params to preserve unit and tenant data
+      ...route.params,
+      // Ensure current selected tenant is included
+      selectedTenant: currentSelectedTenant,
     });
+  };
+
+  // Handle final contract save with API call
+  const handleSaveContract = async () => {
+    // Validate required fields
+    if (!currentUser._id) {
+      Alert.alert('Error', 'User not authenticated. Please log in again.');
+      return;
+    }
+
+    if (!currentSelectedTenant) {
+      Alert.alert('Error', 'Please select a tenant');
+      return;
+    }
+
+    if (!paymentScheduleCompleted || !paymentScheduleData) {
+      Alert.alert('Error', 'Please create a payment schedule first');
+      return;
+    }
+
+    try {
+      // Map payment frequency to backend expected values
+      const mapPaymentFrequency = (frequency: string): string => {
+        switch (frequency) {
+          case 'Monthly':
+            return 'monthly';
+          case 'Quarterly':
+            return 'quarterly';
+          case 'semiAnnually':
+            return 'semi-annually';
+          case 'Annually':
+            return 'annually';
+          default:
+            return 'monthly';
+        }
+      };
+
+      // Map payment schedule data to API format
+      const schedulePayment = paymentScheduleData.payments.map(
+        (payment: any) => ({
+          paymentId: payment.paymentNumber,
+          date: payment.dueDate.toISOString(),
+          value: payment.totalAmount,
+        }),
+      );
+
+      // Calculate service charge per payment
+      const serviceChargePerPayment =
+        paymentScheduleData.totalServiceCharges /
+        paymentScheduleData.numberOfPayments;
+
+      // Prepare contract data for API
+      // const contractData = {
+      //   owner: currentUser._id || 'unknown_user',
+      //   tenant: currentSelectedTenant._id || currentSelectedTenant.id,
+      //   startDate: startDate.toISOString(),
+      //   endDate: endDate.toISOString(),
+      //   paymentFrequency: mapPaymentFrequency(
+      //     paymentScheduleData.paymentFrequency,
+      //   ),
+      //   amount: paymentScheduleData.totalContractValue,
+      //   serviceCharge: serviceChargePerPayment,
+      //   VAT: paymentScheduleData.totalVATAmount.toString(),
+      //   deposit: paymentScheduleData.securityDeposit || 0,
+      //   schedulePayment: schedulePayment,
+      // };
+      const contractData = {
+        owner: currentUser._id || 'unknown_user',
+        tenant: currentSelectedTenant._id || currentSelectedTenant.id,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        paymentFrequency: mapPaymentFrequency(
+          paymentScheduleData.paymentFrequency,
+        ),
+
+        amount: Number(paymentScheduleData.totalContractValue) || 0,
+
+        serviceCharge: {
+          value: Number(serviceChargePerPayment) || 0,
+          currency: 'USD',
+        },
+
+        VAT: paymentScheduleData.totalVATAmount.toString(),
+        deposit: paymentScheduleData.securityDeposit || 0,
+
+        // Map schedule payment with proper amount structure
+        schedulePayment: schedulePayment.map((payment, index) => ({
+          paymentId: payment.paymentId?.toString() || (index + 1).toString(),
+          date: payment.date,
+          value: Number(payment.value) || 0,
+          amount: Number(payment.value) || 0,
+        })),
+      };
+
+      console.log('Creating contract with data:', contractData);
+
+      // Make API call
+      const response = await createContract(contractData).unwrap();
+
+      console.log('Contract created successfully:', response);
+
+      // Show success message
+      Alert.alert('Success', 'Contract created successfully!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Navigate back to previous screen or unit details
+            navigation.goBack();
+          },
+        },
+      ]);
+    } catch (error: any) {
+      console.error('Error creating contract:', error);
+
+      // Show error message
+      Alert.alert(
+        'Error',
+        error?.data?.message || 'Failed to create contract. Please try again.',
+        [{text: 'OK'}],
+      );
+    }
   };
 
   console.log(route, 'console.log(route.params);console.log(route.params);');
@@ -207,31 +357,33 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
             }}
           />
           <View style={styles.infoContainer}>
-            <Text style={styles.unitName}>{unitName}</Text>
+            <Text style={styles.unitName}>{unitName || 'Unit Name'}</Text>
             <View style={styles.areaContainer}>
               <Text style={styles.areaIcon}>
                 <Vector />
               </Text>
-              <Text style={styles.areaText}>{areaSize} m²</Text>
+              <Text style={styles.areaText}>{areaSize || '0'} m²</Text>
             </View>
             <View
               style={[
                 styles.statusButton,
                 status === 'Leased' ? styles.leased : styles.available,
               ]}>
-              <Text style={styles.statusText}>{unitStatus}</Text>
+              <Text style={styles.statusText}>{unitStatus || 'Available'}</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.typeContainer}>
           <Text style={styles.type}>
-            {unitType.charAt(0).toUpperCase() + unitType.slice(1).toLowerCase()}
+            {unitType
+              ? unitType.charAt(0).toUpperCase() +
+                unitType.slice(1).toLowerCase()
+              : 'Unit'}
           </Text>
-          <Text
-            style={
-              styles.propertyName
-            }>{`Part of the property ( ${propertyPart} )`}</Text>
+          <Text style={styles.propertyName}>{`Part of the property ( ${
+            propertyPart || 'Unknown'
+          } )`}</Text>
         </View>
 
         {/* Contract Dates Section */}
@@ -311,10 +463,27 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         <View style={styles.paymentSection}>
           <Text style={styles.sectionLabel}>Payment schedule*</Text>
           <TouchableOpacity
-            style={styles.scheduleButton}
+            style={[
+              styles.scheduleButton,
+              paymentScheduleCompleted && styles.scheduleButtonCompleted,
+            ]}
             onPress={handlePaymentSchedulePress}>
-            <Text style={styles.scheduleButtonText}>Add Schedule</Text>
+            <Text
+              style={[
+                styles.scheduleButtonText,
+                paymentScheduleCompleted && styles.scheduleButtonTextCompleted,
+              ]}>
+              {paymentScheduleCompleted ? 'Schedule Created' : 'Add Schedule'}
+            </Text>
             <Text style={styles.plusIcon}>+</Text>
+
+            {/* <Text
+              style={[
+                styles.plusIcon,
+                paymentScheduleCompleted && styles.plusIconCompleted,
+              ]}>
+              {paymentScheduleCompleted ? '✓' : '+'}
+            </Text> */}
           </TouchableOpacity>
           <Text style={styles.scheduleDescription}>
             This tool helps you to generate a schedule of all the rents due
@@ -325,11 +494,15 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
         {/* Save Button */}
         <Button
-          title="Save"
-          onPress={() => {}}
+          title={isCreatingContract ? 'Creating Contract...' : 'Save'}
+          onPress={handleSaveContract}
           backgroundColor={COLORS.primary}
           titleColor="#331800"
-          //  disabled={!!Object.keys(errors).length || isLoading}
+          disabled={
+            isCreatingContract ||
+            !paymentScheduleCompleted ||
+            !currentSelectedTenant
+          }
         />
       </View>
     </View>
@@ -628,6 +801,17 @@ const Styles = (theme: ThemeState) =>
       lineHeight: 18,
       marginTop: 10,
       paddingHorizontal: 5,
+    },
+    // Completed payment schedule styles
+    scheduleButtonCompleted: {
+      borderColor: '#4D9E70',
+      borderWidth: 2,
+    },
+    scheduleButtonTextCompleted: {
+      fontWeight: '600',
+    },
+    plusIconCompleted: {
+      color: '#4D9E70',
     },
     // Date labels styles
     dateLabelsRow: {

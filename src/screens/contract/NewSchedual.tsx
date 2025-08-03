@@ -55,7 +55,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     'USD',
   );
   const [paymentFrequency, setPaymentFrequency] = useState<
-    'Monthly' | 'Quarterly' | 'Semi-annually' | 'Annually' | ''
+    'Monthly' | 'Quarterly' | 'semiAnnually' | 'Annually' | ''
   >('');
   const [serviceCharge, setServiceCharge] = useState('');
   const [serviceCurrency, setServiceCurrency] = useState<'MYR' | 'USD' | 'SAR'>(
@@ -182,7 +182,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         return 1;
       case 'Quarterly':
         return 3;
-      case 'Semi-annually':
+      case 'semiAnnually':
         return 6;
       case 'Annually':
         return 12;
@@ -396,13 +396,15 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
 
     setIsLoading(false);
 
-    // Navigate to ScheduleOfPayments with all calculated data
+    // Navigate to ScheduleOfPayments with all calculated data and original params
     navigation.navigate(ROUTES.SCHEDULE_OF_PAYMENTS, {
       startDate: startDate,
       endDate: endDate,
       duration: duration,
       formData: formData,
       paymentSchedule: paymentScheduleData,
+      // Pass all original route params to preserve unit and tenant data
+      ...route.params,
     });
     // TODO: Navigate to next screen or save data to API
   };

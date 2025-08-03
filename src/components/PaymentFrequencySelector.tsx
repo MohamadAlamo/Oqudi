@@ -9,7 +9,7 @@ import {
   getResponsiveSpacing,
 } from '../lib/helpers/fontScaling';
 
-type PaymentFrequency = 'Monthly' | 'Quarterly' | 'Semi-annually' | 'Annually';
+type PaymentFrequency = 'Monthly' | 'Quarterly' | 'semiAnnually' | 'Annually';
 
 type PaymentFrequencySelectorProps = {
   onSelectionChange: (selected: PaymentFrequency | '') => void;
@@ -22,7 +22,7 @@ type PaymentFrequencySelectorProps = {
 const PAYMENT_FREQUENCIES: PaymentFrequency[] = [
   'Monthly',
   'Quarterly',
-  'Semi-annually',
+  'semiAnnually',
   'Annually',
 ];
 
