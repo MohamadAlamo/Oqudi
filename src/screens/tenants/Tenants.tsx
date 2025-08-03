@@ -65,11 +65,13 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
           {data?.data.map(item => (
             <TenantCard
               key={item._id}
-              name={`${item.name.firstName} ${item.name.lastName}`}
-              phoneNumber={`${item.phone}`}
-              email={`${item.email}`}
-              address={`${item.location}`}
-              vatNumber={`${item.VAT}`}
+              name={`${item.name?.firstName || ''} ${
+                item.name?.lastName || ''
+              }`.trim()}
+              phoneNumber={`${item.phone || ''}`}
+              email={`${item.email || ''}`}
+              address={`${item.location || ''}`}
+              vatNumber={`${item.VAT || ''}`}
               onEdit={() => {}}
               onDelete={() => {}}
               onPress={

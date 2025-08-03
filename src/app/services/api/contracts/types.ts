@@ -38,6 +38,7 @@ export type TCreateContractRequest = {
   paymentFrequency: string;
   amount: number;
   serviceCharge: {
+    paymentType: string;
     value: number;
     currency: string;
   };
