@@ -16,7 +16,7 @@ import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
 import Vector from '../../assets/icons/Vector.svg';
 import DownIcon from '../../assets/icons/DownIcon.svg';
-
+import PlusIcon from '../../assets/icons/Plus.svg';
 import DatePicker from '../../components/DatePicker';
 import Button from '../../components/Button';
 import {
@@ -456,7 +456,9 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
               ]}>
               {paymentScheduleCompleted ? 'Schedule Created' : 'Add Schedule'}
             </Text>
-            <Text style={styles.plusIcon}>+</Text>
+            <Text>
+              <PlusIcon />
+            </Text>
           </TouchableOpacity>
           <Text style={styles.scheduleDescription}>
             This tool helps you to generate a schedule of all the rents due
@@ -765,11 +767,7 @@ const Styles = (theme: ThemeState) =>
       color: theme === 'light' ? COLORS.black : '#F4F3F2',
       fontSize: 16,
     },
-    plusIcon: {
-      color: theme === 'light' ? COLORS.black : '#F4F3F2',
-      fontSize: 24,
-      fontWeight: 'bold',
-    },
+
     scheduleDescription: {
       color: theme === 'light' ? '#666' : '#ADACB1',
       fontSize: 12,

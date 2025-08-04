@@ -40,11 +40,13 @@ const UnitsCard: React.FC<UnitsCardProps> = ({
           <Text style={styles.unitName}>{unitName}</Text>
           <View
             style={
-              status === 'Vacant'
+              status === 'rented'
                 ? styles.unitStatusLeased
                 : styles.unitStatusVacant
             }>
-            <Text style={styles.unitStatusText}>{status}</Text>
+            <Text style={styles.unitStatusText}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Text>
           </View>
         </View>
         <View style={styles.unitOwnerRow}>

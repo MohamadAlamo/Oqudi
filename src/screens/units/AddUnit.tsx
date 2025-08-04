@@ -294,7 +294,9 @@ const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
 const Styles = (theme: ThemeState) =>
   StyleSheet.create({
     avoidView: {flex: 1},
-    scrollView: {},
+    scrollView: {
+      paddingHorizontal: 10,
+    },
     parentContainer: {
       flex: 1,
       backgroundColor: '#383642',
@@ -302,7 +304,6 @@ const Styles = (theme: ThemeState) =>
     },
     container: {
       flex: 1,
-      alignItems: 'center',
       borderTopRightRadius: 12,
       borderTopLeftRadius: 12,
       backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,

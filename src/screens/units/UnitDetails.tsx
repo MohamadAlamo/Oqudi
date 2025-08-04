@@ -31,7 +31,6 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
-  const status = 'Leased';
 
   useFocusEffect(
     React.useCallback(() => {
@@ -56,9 +55,11 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
             <View
               style={[
                 styles.statusButton,
-                status === 'Leased' ? styles.leased : styles.available,
+                unitStatus === 'vacant' ? styles.leased : styles.available,
               ]}>
-              <Text style={styles.statusText}>{unitStatus}</Text>
+              <Text style={styles.statusText}>
+                {unitStatus.charAt(0).toUpperCase() + unitStatus.slice(1)}
+              </Text>
             </View>
           </View>
         </View>
