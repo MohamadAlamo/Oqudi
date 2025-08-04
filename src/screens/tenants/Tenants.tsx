@@ -65,9 +65,7 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
           {data?.data.map(item => (
             <TenantCard
               key={item._id}
-              name={`${item.name?.firstName || ''} ${
-                item.name?.lastName || ''
-              }`.trim()}
+              name={`${item.name}`.trim()}
               phoneNumber={`${item.phone || ''}`}
               email={`${item.email || ''}`}
               address={`${item.location || ''}`}

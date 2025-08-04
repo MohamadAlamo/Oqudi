@@ -286,7 +286,8 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           text: 'OK',
           onPress: () => {
             // Navigate back to previous screen or unit details
-            navigation.goBack();
+            // navigation.goBack();
+            navigation.navigate(ROUTES.UNIT_DETAILS);
           },
         },
       ]);
@@ -389,9 +390,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
                 currentSelectedTenant && styles.tenantButtonTextSelected,
               ]}>
               {currentSelectedTenant
-                ? `${currentSelectedTenant.name?.firstName || ''} ${
-                    currentSelectedTenant.name?.lastName || ''
-                  }`.trim()
+                ? `${currentSelectedTenant.name}`.trim()
                 : 'Add tenant'}
             </Text>
             <Text style={styles.dropdownIcon}>

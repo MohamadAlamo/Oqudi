@@ -197,10 +197,7 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
 
     const [result, error] = await asyncHandler(
       regTenant({
-        name: {
-          firstName: inputFirstName,
-          lastName: inputLastName,
-        },
+        name: inputFirstName + ' ' + inputLastName,
         phone: inputPhone,
         email: inputEmail,
         location: inputAddress,

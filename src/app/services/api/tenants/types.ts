@@ -15,10 +15,7 @@ export type TAddTenantResponse = {
 };
 
 export type TAddTenantRequest = {
-  name: {
-    firstName: string;
-    lastName: string;
-  };
+  name: string;
   VAT: string;
   location: string;
   email: string;
