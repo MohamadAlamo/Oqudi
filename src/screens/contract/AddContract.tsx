@@ -251,7 +251,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       // Prepare contract data for API - matching Zod validation requirements
       const contractData = {
         schedulePayment: [],
-        owner: currentUser._id || 'unknown_user',
+        owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
@@ -260,12 +260,12 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         // ),
         paymentFrequency: 'annually',
         amount: {
-          value: Number(paymentScheduleData.totalContractValue) || 0,
+          value: Number(paymentScheduleData.totalContractValue),
           currency: 'SAR',
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
-          value: Number(serviceChargePerPayment) || 0,
+          value: Number(serviceChargePerPayment),
           currency: 'SAR',
         },
 
