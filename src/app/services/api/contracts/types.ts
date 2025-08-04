@@ -33,6 +33,8 @@ export type TPaymentScheduleItem = {
 export type TCreateContractRequest = {
   owner: string;
   tenant: string;
+  property: string;
+  unit: string;
   startDate: string;
   endDate: string;
   paymentFrequency: string;

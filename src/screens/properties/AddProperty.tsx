@@ -214,7 +214,9 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
     }
 
     console.log({result});
-    navigation.navigate(ROUTES.PROPERTIES);
+    navigation.navigate('BottomTabs', {
+      screen: ROUTES.PROPERTIES,
+    });
   };
 
   return (

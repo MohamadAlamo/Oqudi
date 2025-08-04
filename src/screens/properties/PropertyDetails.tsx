@@ -91,6 +91,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                         propertyPart: propertyName,
                         unitImage: imageUrl,
                         haveContract: unit.contracts,
+                        propertyId,
                       };
 
                       console.log(

@@ -57,7 +57,10 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     unitImage,
     haveContract,
     selectedTenant,
+    unitId,
+    propertyId,
   } = route.params;
+  console.log(propertyId, ' propertyIdpropertyIdpropertyId');
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
@@ -250,7 +253,9 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
       // Prepare contract data for API - matching Zod validation requirements
       const contractData = {
-        schedulePayment: [],
+        PaymentSchedule: [],
+        property: propertyId,
+        unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
@@ -285,9 +290,19 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         {
           text: 'OK',
           onPress: () => {
-            // Navigate back to previous screen or unit details
-            // navigation.goBack();
-            navigation.navigate(ROUTES.UNIT_DETAILS);
+            // Navigate to UnitsFlow with basic parameters and refresh flag
+            navigation.navigate('UnitsFlow', {
+              screen: ROUTES.UNIT_DETAILS,
+              params: {
+                unitId: route.params.unitId,
+                unitName: unitName,
+                areaSize: areaSize,
+                unitType: unitType,
+                propertyPart: propertyPart,
+                unitImage: unitImage,
+                refreshData: true, // Flag to trigger data refresh
+              },
+            });
           },
         },
       ]);
@@ -442,14 +457,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
               {paymentScheduleCompleted ? 'Schedule Created' : 'Add Schedule'}
             </Text>
             <Text style={styles.plusIcon}>+</Text>
-
-            {/* <Text
-              style={[
-                styles.plusIcon,
-                paymentScheduleCompleted && styles.plusIconCompleted,
-              ]}>
-              {paymentScheduleCompleted ? '✓' : '+'}
-            </Text> */}
           </TouchableOpacity>
           <Text style={styles.scheduleDescription}>
             This tool helps you to generate a schedule of all the rents due
@@ -645,8 +652,10 @@ const Styles = (theme: ThemeState) =>
       marginBottom: 5,
       borderWidth: 1,
       borderRadius: 14,
-      backgroundColor: COLORS.BackgroundLightGray,
-      borderColor: COLORS.BackgroundLightGray,
+      backgroundColor:
+        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
+      borderColor:
+        theme === 'light' ? COLORS.BackgroundLightGray : COLORS.CardBackground,
     },
     durationText: {
       color: theme === 'light' ? COLORS.black : COLORS.white,

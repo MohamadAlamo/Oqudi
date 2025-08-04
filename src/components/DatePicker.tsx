@@ -153,7 +153,7 @@ const darkStyles = StyleSheet.create({
   },
   dateText: {
     color: '#F4F3F2',
-    fontSize: safeGetResponsiveFontSize(16),
+    fontSize: safeGetResponsiveFontSize(10),
     fontWeight: '600',
     textAlign: 'center',
   },

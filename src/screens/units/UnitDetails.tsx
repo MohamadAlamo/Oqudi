@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {View, StyleSheet, Text, Image, Platform} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
 import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
@@ -24,11 +25,22 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
     unitImage,
     haveContract,
     unitId,
+    refreshData,
+    propertyId,
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (refreshData) {
+        console.log(refreshData, 'Refreshing data...');
+      }
+    }, [refreshData]),
+  );
+
   console.log(route, 'console.log(route.params);console.log(route.params);');
   return (
     <View style={styles.parentContainer}>
@@ -76,6 +88,7 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
                     propertyPart: propertyPart,
                     unitImage: {uri: unitImage},
                     haveContract: haveContract,
+                    propertyId,
                   },
                 })
               }
