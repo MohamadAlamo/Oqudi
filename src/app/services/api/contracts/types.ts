@@ -36,7 +36,10 @@ export type TCreateContractRequest = {
   startDate: string;
   endDate: string;
   paymentFrequency: string;
-  amount: number;
+  amount: {
+    value: number;
+    currency: string;
+  };
   serviceCharge: {
     paymentType: string;
     value: number;
@@ -44,7 +47,7 @@ export type TCreateContractRequest = {
   };
   VAT: string;
   deposit?: number;
-  schedulePayment?: TSchedulePaymentItem[];
+  schedulePayment?: any[];
 };
 
 export type TSchedulePaymentItem = {

@@ -99,10 +99,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       setPaymentScheduleCompleted(true);
       setPaymentScheduleData(route.params.paymentScheduleData);
       setScheduleFormData(route.params.formData);
-      console.log(
-        'Payment schedule completed:',
-        route.params.paymentScheduleData,
-      );
     }
   }, [route.params]);
 
@@ -214,87 +210,21 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
   // Handle final contract save with API call
   const handleSaveContract = async () => {
-    console.log('=== SAVE CONTRACT BUTTON PRESSED ===');
-    console.log('Current Time:', new Date().toISOString());
-
-    // Log all available data
-    console.log('=== USER DATA ===');
-    console.log('Current User:', currentUser);
-    console.log('User ID:', currentUser._id);
-
-    console.log('=== ROUTE PARAMS ===');
-    console.log('All Route Params:', route.params);
-    console.log('Unit Status:', route.params?.unitStatus);
-    console.log('Unit Name:', route.params?.unitName);
-    console.log('Area Size:', route.params?.areaSize);
-    console.log('Unit Type:', route.params?.unitType);
-    console.log('Property Part:', route.params?.propertyPart);
-    console.log('Unit Image:', route.params?.unitImage);
-    console.log('Have Contract:', route.params?.haveContract);
-    console.log('Unit ID (if available):', route.params?.unitId);
-
-    console.log('=== TENANT DATA ===');
-    console.log('Selected Tenant from Route:', route.params?.selectedTenant);
-    console.log('Current Selected Tenant State:', currentSelectedTenant);
-
-    console.log('=== CONTRACT DATES ===');
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    console.log('Start Date ISO:', startDate.toISOString());
-    console.log('End Date ISO:', endDate.toISOString());
-
-    console.log('=== PAYMENT SCHEDULE DATA ===');
-    console.log('Payment Schedule Completed:', paymentScheduleCompleted);
-    console.log('Payment Schedule Data:', paymentScheduleData);
-    console.log('Schedule Form Data:', scheduleFormData);
-
-    if (paymentScheduleData) {
-      console.log('Payment Schedule Details:');
-      console.log(
-        '- Number of Payments:',
-        paymentScheduleData.numberOfPayments,
-      );
-      console.log('- Payment Frequency:', paymentScheduleData.paymentFrequency);
-      console.log(
-        '- Total Contract Value:',
-        paymentScheduleData.totalContractValue,
-      );
-      console.log(
-        '- Total Service Charges:',
-        paymentScheduleData.totalServiceCharges,
-      );
-      console.log('- Total VAT Amount:', paymentScheduleData.totalVATAmount);
-      console.log('- Security Deposit:', paymentScheduleData.securityDeposit);
-      console.log('- Individual Payments:', paymentScheduleData.payments);
-    }
-
-    console.log('=== VALIDATION CHECKS ===');
-
     // Validate required fields
     if (!currentUser._id) {
-      console.log('❌ VALIDATION FAILED: User not authenticated');
       Alert.alert('Error', 'User not authenticated. Please log in again.');
       return;
     }
-    console.log('✅ User authenticated');
 
     if (!currentSelectedTenant) {
-      console.log('❌ VALIDATION FAILED: No tenant selected');
       Alert.alert('Error', 'Please select a tenant');
       return;
     }
-    console.log('✅ Tenant selected');
 
     if (!paymentScheduleCompleted || !paymentScheduleData) {
-      console.log('❌ VALIDATION FAILED: Payment schedule not completed');
       Alert.alert('Error', 'Please create a payment schedule first');
       return;
     }
-    console.log('✅ Payment schedule completed');
-
-    console.log(
-      '=== ALL VALIDATIONS PASSED - PROCEEDING WITH CONTRACT CREATION ===',
-    );
 
     try {
       // Map payment frequency to backend expected values
@@ -313,15 +243,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         }
       };
 
-      // Map payment schedule data to API format
-      const schedulePayment = paymentScheduleData.payments.map(
-        (payment: any) => ({
-          paymentId: payment.paymentNumber,
-          date: payment.dueDate.toISOString(),
-          value: payment.totalAmount,
-        }),
-      );
-
       // Calculate service charge per payment
       const serviceChargePerPayment =
         paymentScheduleData.totalServiceCharges /
@@ -329,6 +250,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
       // Prepare contract data for API - matching Zod validation requirements
       const contractData = {
+        schedulePayment: [],
         owner: currentUser._id || 'unknown_user',
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
@@ -337,41 +259,26 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         //   paymentScheduleData.paymentFrequency,
         // ),
         paymentFrequency: 'annually',
-        // Amount as number (Zod expects number)
-        amount: Number(paymentScheduleData.totalContractValue) || 0,
-        // Service charge as object with paymentType, value, and currency
+        amount: {
+          value: Number(paymentScheduleData.totalContractValue) || 0,
+          currency: 'SAR',
+        },
         serviceCharge: {
           paymentType: 'fixed-amount',
           value: Number(serviceChargePerPayment) || 0,
           currency: 'SAR',
         },
-        // VAT as string
+
         VAT: paymentScheduleData.totalVATAmount.toString(),
-        // Schedule payment as array (Zod expects required array)
-        schedulePayment: schedulePayment,
+
+        // schedulePayment: schedulePayment,
       };
+      console.log(paymentScheduleData, 'paymentScheduleData');
 
-      console.log('=== FINAL CONTRACT DATA (MATCHING POSTMAN FORMAT) ===');
-      console.log('Contract Data:', JSON.stringify(contractData, null, 2));
-      console.log('=== COMPARISON WITH WORKING POSTMAN JSON ===');
-      console.log('✅ owner: string');
-      console.log('✅ tenant: string');
-      console.log('✅ startDate: ISO string');
-      console.log('✅ endDate: ISO string');
-      console.log('✅ paymentFrequency: string');
-      console.log('✅ amount: {value: number, currency: string}');
-      console.log(
-        '✅ serviceCharge: {paymentType: string, value: number, currency: string}',
-      );
-      console.log('✅ VAT: string');
-      console.log('================================================');
-
-      console.log('Creating contract with data:', contractData);
-
+      console.log(contractData, 'contractData');
       // Make API call
       const response = await createContract(contractData).unwrap();
-
-      console.log('Contract created successfully:', response);
+      console.log(response, 'response');
 
       // Show success message
       Alert.alert('Success', 'Contract created successfully!', [
@@ -395,8 +302,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
   };
 
-  console.log(route, 'console.log(route.params);console.log(route.params);');
-
   return (
     <View style={styles.parentContainer}>
       <View style={styles.container}>
@@ -414,9 +319,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
                 : unitImage || require('../../assets/img/property.png')
             }
             style={styles.image}
-            onError={error => {
-              console.log('Image loading error:', error);
-            }}
+            onError={() => {}}
           />
           <View style={styles.infoContainer}>
             <Text style={styles.unitName}>{unitName || 'Unit Name'}</Text>
