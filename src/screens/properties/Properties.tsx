@@ -64,10 +64,7 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
   console.log('currentData', currentData?.data.docs, error);
 
   const properties = currentData?.data.docs;
-
-  useEffect(() => {
-    console.log(properties, 'properties here');
-  }, []);
+  console.log(properties, 'properties here');
 
   return (
     <View style={styles.parentContainer}>
@@ -121,10 +118,11 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
                   key={index}
                   onPress={() =>
                     navigation.navigate(ROUTES.PROPERTY_DETAILS, {
-                      propertyId: property._id, // Pass the property ID or other details
+                      propertyId: property._id,
                       propertyName: property.name,
                       propertyImage: imageUrl,
                       propertyLocation: property.location,
+                      leaseType: property.leaseType,
                     })
                   }>
                   <PropertyCard

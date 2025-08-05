@@ -35,6 +35,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
     propertyId,
     leasedUnits,
     vacantUnits,
+    leaseType,
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
@@ -51,6 +52,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   });
   const units = currentData?.data.docs || [];
   console.log(units, 'units');
+  console.log(leaseType, 'leaseType');
 
   return (
     <View style={styles.parentContainer}>
