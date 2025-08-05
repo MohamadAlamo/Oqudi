@@ -1,5 +1,12 @@
 import React, {useMemo} from 'react';
-import {View, StyleSheet, Text, Image, Platform} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
@@ -9,6 +16,7 @@ import {COLORS, ROUTES} from '../../lib/constants';
 
 import Vector from '../../assets/icons/Vector.svg';
 import RoundButton from '../../components/RoundButton';
+import ContractInfo from './components/ContractInfo';
 
 interface UnitDetailsProps {
   navigation: StackNavigationProp<any, any>;
@@ -30,7 +38,11 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
-  const styles = useMemo(() => Styles(theme), [theme]);
+  const hasContract = haveContract && haveContract.length > 0;
+  const styles = useMemo(
+    () => Styles(theme, hasContract),
+    [theme, hasContract],
+  );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -43,84 +55,100 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   console.log(route, 'console.log(route.params);console.log(route.params);');
   return (
     <View style={styles.parentContainer}>
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Image source={{uri: unitImage}} style={styles.image} />
-          <View style={styles.infoContainer}>
-            <Text style={styles.unitName}>{unitName}</Text>
-            <View style={styles.areaContainer}>
-              <Vector style={styles.vector} />
-              <Text style={styles.areaText}>{areaSize} m²</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Image source={{uri: unitImage}} style={styles.image} />
+            <View style={styles.infoContainer}>
+              <Text style={styles.unitName}>{unitName}</Text>
+              <View style={styles.areaContainer}>
+                <Vector style={styles.vector} />
+                <Text style={styles.areaText}>{areaSize} m²</Text>
+              </View>
+              <View
+                style={[
+                  styles.statusButton,
+                  unitStatus === 'vacant' ? styles.leased : styles.available,
+                ]}>
+                <Text style={styles.statusText}>
+                  {unitStatus.charAt(0).toUpperCase() + unitStatus.slice(1)}
+                </Text>
+              </View>
             </View>
-            <View
-              style={[
-                styles.statusButton,
-                unitStatus === 'vacant' ? styles.leased : styles.available,
-              ]}>
-              <Text style={styles.statusText}>
-                {unitStatus.charAt(0).toUpperCase() + unitStatus.slice(1)}
-              </Text>
+          </View>
+
+          <View style={styles.typeContainer}>
+            <Text style={styles.type}>
+              {unitType.charAt(0).toUpperCase() +
+                unitType.slice(1).toLowerCase()}
+            </Text>
+            <Text
+              style={
+                styles.propertyName
+              }>{`Part of the property ( ${propertyPart} )`}</Text>
+          </View>
+
+          {haveContract && haveContract.length === 0 ? (
+            <View style={styles.Roundbutton}>
+              <RoundButton
+                onPress={() =>
+                  navigation.navigate('ContractFlow', {
+                    screen: ROUTES.ADDCONTRACT,
+                    params: {
+                      unitId: unitId,
+                      unitName: unitName,
+                      areaSize: areaSize,
+                      unitStatus: unitStatus,
+                      unitType: unitType,
+                      propertyPart: propertyPart,
+                      unitImage: {uri: unitImage},
+                      haveContract: haveContract,
+                      propertyId,
+                    },
+                  })
+                }
+                Title="Add contract"
+              />
             </View>
-          </View>
+          ) : (
+            <ContractInfo />
+          )}
         </View>
-
-        <View style={styles.typeContainer}>
-          <Text style={styles.type}>
-            {unitType.charAt(0).toUpperCase() + unitType.slice(1).toLowerCase()}
-          </Text>
-          <Text
-            style={
-              styles.propertyName
-            }>{`Part of the property ( ${propertyPart} )`}</Text>
-        </View>
-
-        {haveContract && haveContract.length === 0 ? (
-          <View style={styles.Roundbutton}>
-            <RoundButton
-              onPress={() =>
-                navigation.navigate('ContractFlow', {
-                  screen: ROUTES.ADDCONTRACT,
-                  params: {
-                    unitId: unitId,
-                    unitName: unitName,
-                    areaSize: areaSize,
-                    unitStatus: unitStatus,
-                    unitType: unitType,
-                    propertyPart: propertyPart,
-                    unitImage: {uri: unitImage},
-                    haveContract: haveContract,
-                    propertyId,
-                  },
-                })
-              }
-              Title="Add contract"
-            />
-          </View>
-        ) : (
-          <View style={styles.Roundbutton}>
-            <Text>should be contract details (Still working on it)</Text>
-          </View>
-        )}
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
-const Styles = (theme: ThemeState) =>
+const Styles = (theme: ThemeState, hasContract: boolean) =>
   StyleSheet.create({
     parentContainer: {
       flex: 1,
       backgroundColor: theme === 'light' ? COLORS.black : '#383642',
     },
-
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingBottom: 20,
+    },
     container: {
       flex: 1,
       justifyContent: 'flex-start',
       alignItems: 'center',
       borderTopRightRadius: 12,
       borderTopLeftRadius: 12,
-      backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,
+      backgroundColor:
+        theme === 'light'
+          ? hasContract
+            ? COLORS.BackgroundLightGray
+            : COLORS.white
+          : COLORS.backgroundDark,
       padding: 20,
+      minHeight: '100%',
     },
     card: {
       flexDirection: 'row',

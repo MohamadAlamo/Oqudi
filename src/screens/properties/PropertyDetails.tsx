@@ -54,6 +54,37 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   console.log(units, 'units');
   console.log(leaseType, 'leaseType');
 
+  // If leaseType is "whole", show only the basic property info
+  if (leaseType === 'whole') {
+    return (
+      <View style={styles.parentContainer}>
+        <View style={styles.container}>
+          <Image source={{uri: propertyImage}} style={styles.propertyImage} />
+
+          <Text style={styles.propertyName}>{propertyName}</Text>
+          <View style={styles.locationContainer}>
+            <Location style={styles.icon} />
+            <Text style={styles.propertyLocation}>{propertyLocation}</Text>
+          </View>
+
+          <View style={styles.unitsContainer}>
+            {/* <Text style={styles.unitText}>Leased Units: {leasedUnits}</Text>
+            <Text style={styles.unitText}>Vacant Units: {vacantUnits}</Text> */}
+          </View>
+          <View style={styles.Roundbutton2}>
+            <RoundButton
+              onPress={() => {
+                console.log('hello');
+              }}
+              Title="Add contract"
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // If leaseType is "units", show the full content with units
   return (
     <View style={styles.parentContainer}>
       <View style={styles.container}>
@@ -227,6 +258,12 @@ const Styles = (theme: ThemeState) =>
       width: '40%',
       alignSelf: 'center',
       paddingRight: Platform.OS === 'ios' ? 0 : 10,
+    },
+    Roundbutton2: {
+      marginTop: 100,
+      width: '45%',
+      alignSelf: 'center',
+      paddingRight: Platform.OS === 'ios' ? 0 : 12,
     },
     propertyContainer: {
       width: '100%',
