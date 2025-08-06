@@ -230,60 +230,32 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
 
     try {
-      // Map payment frequency to backend expected values
-      const mapPaymentFrequency = (frequency: string): string => {
-        switch (frequency) {
-          case 'Monthly':
-            return 'monthly';
-          case 'Quarterly':
-            return 'quarterly';
-          case 'semiAnnually':
-            return 'semi-annually';
-          case 'Annually':
-            return 'annually';
-          default:
-            return 'monthly';
-        }
-      };
-
       // Calculate service charge per payment
-      const serviceChargePerPayment =
-        paymentScheduleData.totalServiceCharges /
-        paymentScheduleData.numberOfPayments;
-
-      // Prepare contract data for API - matching Zod validation requirements
       const contractData = {
-        PaymentSchedule: [],
         property: propertyId,
         unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        // paymentFrequency: mapPaymentFrequency(
-        //   paymentScheduleData.paymentFrequency,
-        // ),
-        paymentFrequency: 'annually',
+        paymentFrequency: scheduleFormData.paymentFrequency,
         amount: {
           value: Number(paymentScheduleData.totalContractValue),
-          currency: 'SAR',
+          currency: scheduleFormData.rentalPaymentInvoice.currency,
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
-          value: Number(serviceChargePerPayment),
-          currency: 'SAR',
+          value: scheduleFormData.serviceChargePerPayment.amount,
+          currency: scheduleFormData.serviceChargePerPayment.currency,
         },
 
         VAT: paymentScheduleData.totalVATAmount.toString(),
-
-        // schedulePayment: schedulePayment,
       };
       console.log(paymentScheduleData, 'paymentScheduleData');
-
       console.log(contractData, 'contractData');
-      // Make API call
-      const response = await createContract(contractData).unwrap();
-      console.log(response, 'response');
+
+      // const response = await createContract(contractData).unwrap();
+      // console.log(response, 'response');
 
       // Show success message
       Alert.alert('Success', 'Contract created successfully!', [

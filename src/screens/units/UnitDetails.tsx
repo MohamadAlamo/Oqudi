@@ -44,14 +44,6 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
     [theme, hasContract],
   );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (refreshData) {
-        console.log(refreshData, 'Refreshing data...');
-      }
-    }, [refreshData]),
-  );
-
   console.log(route, 'console.log(route.params);console.log(route.params);');
   return (
     <View style={styles.parentContainer}>

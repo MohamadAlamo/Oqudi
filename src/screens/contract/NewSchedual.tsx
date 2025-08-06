@@ -55,7 +55,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     'USD',
   );
   const [paymentFrequency, setPaymentFrequency] = useState<
-    'Monthly' | 'Quarterly' | 'semiAnnually' | 'Annually' | ''
+    'Monthly' | 'Quarterly' | 'Semi-annually' | 'Annually' | ''
   >('');
   const [serviceCharge, setServiceCharge] = useState('');
   const [serviceCurrency, setServiceCurrency] = useState<'MYR' | 'USD' | 'SAR'>(
@@ -182,7 +182,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         return 1;
       case 'Quarterly':
         return 3;
-      case 'semiAnnually':
+      case 'Semi-annually':
         return 6;
       case 'Annually':
         return 12;

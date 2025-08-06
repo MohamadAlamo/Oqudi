@@ -13,7 +13,7 @@ export type TContract = {
   VAT: string;
   deposit?: number;
   invoices?: any[];
-  schedulePayment?: TPaymentScheduleItem[];
+  // schedulePayment?: TPaymentScheduleItem[];
   status: TContractStatus;
   createdAt: string;
   updatedAt: string;
@@ -49,7 +49,7 @@ export type TCreateContractRequest = {
   };
   VAT: string;
   deposit?: number;
-  schedulePayment?: any[];
+  // schedulePayment?: any[];
 };
 
 export type TSchedulePaymentItem = {
@@ -76,7 +76,7 @@ export type TContractStatus =
 export const PAYMENT_FREQUENCY = {
   monthly: 'Monthly',
   quarterly: 'Quarterly',
-  semiAnnually: 'semiAnnually',
+  Semi-annually: 'Semi-annually',
   annually: 'Annually',
 } as const;
 
