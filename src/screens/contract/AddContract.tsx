@@ -24,6 +24,8 @@ import {
   getResponsiveSpacing,
 } from '../../lib/helpers/fontScaling';
 import {useCreateContractMutation} from '../../app/services/api/contracts';
+import {useDispatch} from 'react-redux';
+import {apiSlice} from '../../app/redux/apiSlice';
 // import {useFormExitConfirmation} from '../../lib/hooks/useFormExitConfirmation';
 interface AddContractProps {
   navigation: StackNavigationProp<any, any>;
@@ -64,6 +66,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch();
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
 
@@ -258,22 +261,19 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       const response = await createContract(contractData).unwrap();
       console.log(response, 'response');
 
+      // Invalidate Units cache to trigger fresh data fetch
+      dispatch(apiSlice.util.invalidateTags(['Units']));
+
       // Show success message
       Alert.alert('Success', 'Contract created successfully!', [
         {
           text: 'OK',
           onPress: () => {
-            // Navigate to UnitsFlow with basic parameters and refresh flag
+            // Navigate to UnitsFlow with just the unitId
             navigation.navigate('UnitsFlow', {
               screen: ROUTES.UNIT_DETAILS,
               params: {
                 unitId: route.params.unitId,
-                // unitName: unitName,
-                // areaSize: areaSize,
-                // unitType: unitType,
-                // propertyPart: propertyPart,
-                // unitImage: unitImage,
-                refreshData: true, // Flag to trigger data refresh
               },
             });
           },
