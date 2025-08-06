@@ -1,9 +1,19 @@
 import React, {useMemo} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  Alert,
+} from 'react-native';
 import {COLORS, ROUTES} from '../../lib/constants';
 import {RootState} from '../../app/redux/store';
 import {useSelector} from 'react-redux';
-import {useGetTenantsQuery} from '../../app/services/api/tenants';
+import {
+  useGetTenantsQuery,
+  useDeleteTenantMutation,
+} from '../../app/services/api/tenants';
 import TenantCard from '../../components/TenantCard';
 import FloatinActionButton from '../../components/FloatinActionButton';
 import {ThemeState} from '../../app/redux/themeSlice';
@@ -19,6 +29,7 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
   const {data, error, isLoading} = useGetTenantsQuery();
+  const [deleteTenant, {isLoading: isDeleting}] = useDeleteTenantMutation();
   const SvgComponent = theme === 'dark' ? PropertyDark : PropertyLight;
 
   // Check if we're in selection mode
@@ -36,6 +47,37 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
         },
       });
     }
+  };
+
+  // Handle tenant deletion
+  const handleDeleteTenant = (tenantId: string, tenantName: string) => {
+    Alert.alert(
+      'Delete Tenant',
+      `Are you sure you want to delete "${tenantName}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTenant(tenantId).unwrap();
+              Alert.alert('Success', 'Tenant deleted successfully!');
+            } catch (error: any) {
+              console.error('Error deleting tenant:', error);
+              Alert.alert(
+                'Error',
+                error?.data?.message ||
+                  'Failed to delete tenant. Please try again.',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
   if (error)
     return (
@@ -71,7 +113,12 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
               address={`${item.location || ''}`}
               vatNumber={`${item.VAT || ''}`}
               onEdit={() => {}}
-              onDelete={() => {}}
+              onDelete={() =>
+                handleDeleteTenant(
+                  item._id,
+                  `${item.name}`.trim() || 'this tenant',
+                )
+              }
               onPress={
                 isSelectionMode ? () => handleTenantSelect(item) : undefined
               }
