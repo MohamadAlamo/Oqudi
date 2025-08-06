@@ -232,20 +232,21 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     try {
       // Calculate service charge per payment
       const contractData = {
+        paymentSchedule: [],
         property: propertyId,
         unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        paymentFrequency: scheduleFormData.paymentFrequency,
+        paymentFrequency: scheduleFormData.paymentFrequency.toLowerCase(),
         amount: {
           value: Number(paymentScheduleData.totalContractValue),
           currency: scheduleFormData.rentalPaymentInvoice.currency,
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
-          value: scheduleFormData.serviceChargePerPayment.amount,
+          value: Number(scheduleFormData.serviceChargePerPayment.amount),
           currency: scheduleFormData.serviceChargePerPayment.currency,
         },
 
@@ -254,8 +255,8 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       console.log(paymentScheduleData, 'paymentScheduleData');
       console.log(contractData, 'contractData');
 
-      // const response = await createContract(contractData).unwrap();
-      // console.log(response, 'response');
+      const response = await createContract(contractData).unwrap();
+      console.log(response, 'response');
 
       // Show success message
       Alert.alert('Success', 'Contract created successfully!', [
@@ -267,11 +268,11 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
               screen: ROUTES.UNIT_DETAILS,
               params: {
                 unitId: route.params.unitId,
-                unitName: unitName,
-                areaSize: areaSize,
-                unitType: unitType,
-                propertyPart: propertyPart,
-                unitImage: unitImage,
+                // unitName: unitName,
+                // areaSize: areaSize,
+                // unitType: unitType,
+                // propertyPart: propertyPart,
+                // unitImage: unitImage,
                 refreshData: true, // Flag to trigger data refresh
               },
             });
@@ -304,25 +305,24 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
             source={
               unitImage && typeof unitImage === 'string'
                 ? {uri: unitImage}
-                : unitImage || require('../../assets/img/property.png')
+                : unitImage
             }
             style={styles.image}
-            onError={() => {}}
           />
           <View style={styles.infoContainer}>
-            <Text style={styles.unitName}>{unitName || 'Unit Name'}</Text>
+            <Text style={styles.unitName}>{unitName}</Text>
             <View style={styles.areaContainer}>
               <Text style={styles.areaIcon}>
                 <Vector />
               </Text>
-              <Text style={styles.areaText}>{areaSize || '0'} m²</Text>
+              <Text style={styles.areaText}>{areaSize} m²</Text>
             </View>
             <View
               style={[
                 styles.statusButton,
                 status === 'Leased' ? styles.leased : styles.available,
               ]}>
-              <Text style={styles.statusText}>{unitStatus || 'Available'}</Text>
+              <Text style={styles.statusText}>{unitStatus}</Text>
             </View>
           </View>
         </View>
@@ -334,9 +334,10 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
                 unitType.slice(1).toLowerCase()
               : 'Unit'}
           </Text>
-          <Text style={styles.propertyName}>{`Part of the property ( ${
-            propertyPart || 'Unknown'
-          } )`}</Text>
+          <Text
+            style={
+              styles.propertyName
+            }>{`Part of the property ( ${propertyPart} )`}</Text>
         </View>
 
         {/* Contract Dates Section */}

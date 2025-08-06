@@ -6,6 +6,7 @@ import {
   Image,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
@@ -13,10 +14,12 @@ import {useFocusEffect} from '@react-navigation/native';
 import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
+import {useGetUnitByIdQuery} from '../../app/services/api/units';
 
 import Vector from '../../assets/icons/Vector.svg';
 import RoundButton from '../../components/RoundButton';
 import ContractInfo from './components/ContractInfo';
+import {SERVER_URL} from '../../app/config';
 
 interface UnitDetailsProps {
   navigation: StackNavigationProp<any, any>;
@@ -24,27 +27,42 @@ interface UnitDetailsProps {
 }
 
 const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
-  const {
-    unitStatus,
-    unitName,
-    areaSize,
-    unitType,
-    propertyPart,
-    unitImage,
-    haveContract,
-    unitId,
-    refreshData,
-    propertyId,
-  } = route.params;
+  const {unitId, propertyId, propertyPart} = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
-  const hasContract = haveContract && haveContract.length > 0;
+
+  // Fetch fresh unit data from API
+  const {data: unitData, isLoading, error} = useGetUnitByIdQuery(unitId);
+
+  // Use fresh data from API
+  const currentUnitData = unitData?.data;
+
+  // Helper function to construct full image URL
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return null;
+    return `${SERVER_URL}/${imagePath.replace(/^\//, '')}`;
+  };
+  const imageUrl = getImageUrl(currentUnitData?.pictures?.[0]);
+  console.log(currentUnitData, 'currentUnitData');
+
+  const hasContract =
+    currentUnitData?.contracts && currentUnitData.contracts?.length > 0;
   const styles = useMemo(
     () => Styles(theme, hasContract),
     [theme, hasContract],
   );
 
-  console.log(route, 'console.log(route.params);console.log(route.params);');
+  // Show error state or if no data
+  if (error || !currentUnitData) {
+    return (
+      <View style={[styles.parentContainer, styles.loadingContainer]}>
+        <Text style={styles.loadingText}>
+          {error ? 'Failed to load unit details' : 'No unit data available'}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.parentContainer}>
       <ScrollView
@@ -53,20 +71,30 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
         showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <View style={styles.card}>
-            <Image source={{uri: unitImage}} style={styles.image} />
+            <Image
+              source={{
+                uri: imageUrl,
+              }}
+              style={styles.image}
+            />
             <View style={styles.infoContainer}>
-              <Text style={styles.unitName}>{unitName}</Text>
+              <Text style={styles.unitName}>{currentUnitData.name}</Text>
               <View style={styles.areaContainer}>
                 <Vector style={styles.vector} />
-                <Text style={styles.areaText}>{areaSize} m²</Text>
+                <Text style={styles.areaText}>
+                  {currentUnitData.size?.value} m²
+                </Text>
               </View>
               <View
                 style={[
                   styles.statusButton,
-                  unitStatus === 'vacant' ? styles.leased : styles.available,
+                  currentUnitData.status === 'vacant'
+                    ? styles.leased
+                    : styles.available,
                 ]}>
                 <Text style={styles.statusText}>
-                  {unitStatus.charAt(0).toUpperCase() + unitStatus.slice(1)}
+                  {currentUnitData.status.charAt(0).toUpperCase() +
+                    currentUnitData.status.slice(1)}
                 </Text>
               </View>
             </View>
@@ -74,16 +102,16 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
 
           <View style={styles.typeContainer}>
             <Text style={styles.type}>
-              {unitType.charAt(0).toUpperCase() +
-                unitType.slice(1).toLowerCase()}
+              {currentUnitData.type.charAt(0).toUpperCase() +
+                currentUnitData.type.slice(1).toLowerCase()}
             </Text>
-            <Text
-              style={
-                styles.propertyName
-              }>{`Part of the property ( ${propertyPart} )`}</Text>
+            <Text style={styles.propertyName}>{`Part of the property ( ${
+              currentUnitData?.property || propertyPart
+            } )`}</Text>
           </View>
 
-          {haveContract && haveContract.length === 0 ? (
+          {currentUnitData.contracts &&
+          currentUnitData.contracts.length === 0 ? (
             <View style={styles.Roundbutton}>
               <RoundButton
                 onPress={() =>
@@ -91,14 +119,14 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
                     screen: ROUTES.ADDCONTRACT,
                     params: {
                       unitId: unitId,
-                      unitName: unitName,
-                      areaSize: areaSize,
-                      unitStatus: unitStatus,
-                      unitType: unitType,
+                      unitName: currentUnitData.name,
+                      areaSize: currentUnitData.size?.value,
+                      unitStatus: currentUnitData.status,
+                      unitType: currentUnitData.type,
                       propertyPart: propertyPart,
-                      unitImage: {uri: unitImage},
-                      haveContract: haveContract,
-                      propertyId,
+                      unitImage: imageUrl,
+                      haveContract: currentUnitData.contracts,
+                      propertyId: currentUnitData.property,
                     },
                   })
                 }
@@ -213,6 +241,15 @@ const Styles = (theme: ThemeState, hasContract: boolean) =>
       width: '45%',
       alignSelf: 'center',
       paddingRight: Platform.OS === 'ios' ? 0 : 12,
+    },
+    loadingContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      marginTop: 10,
+      fontSize: 16,
     },
   });
 
