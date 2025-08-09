@@ -106,14 +106,16 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             <Text style={styles.propertyName}>Units</Text>
             <ScrollView
               style={styles.propertyContainer}
-              // eslint-disable-next-line react-native/no-inline-styles
-              contentContainerStyle={{paddingBottom: 130}}>
+              contentContainerStyle={styles.scrollContentContainer}
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}
+              scrollEventThrottle={16}>
               {units?.map((unit, index) => {
                 const imageUrl = `${SERVER_URL}/${unit.pictures[0]}`;
 
                 return (
                   <TouchableOpacity
-                    key={index}
+                    key={unit._id}
                     onPress={() => {
                       const params = {
                         unitId: unit._id,
@@ -144,7 +146,9 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                       status={unit.status}
                       unitType={unit.type}
                     />
-                    {index !== units.length && <View style={styles.divider} />}
+                    {index !== units.length - 1 && (
+                      <View style={styles.divider} />
+                    )}
                   </TouchableOpacity>
                 );
               })}
@@ -200,6 +204,7 @@ const Styles = (theme: ThemeState) =>
     second222: {
       width: '100%',
       marginTop: 10,
+      flex: 1,
     },
     container: {
       flex: 1,
@@ -267,6 +272,10 @@ const Styles = (theme: ThemeState) =>
     },
     propertyContainer: {
       width: '100%',
+      flex: 1,
+    },
+    scrollContentContainer: {
+      paddingBottom: 130,
     },
     divider: {
       height: 1,

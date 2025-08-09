@@ -105,9 +105,10 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
               {currentUnitData.type.charAt(0).toUpperCase() +
                 currentUnitData.type.slice(1).toLowerCase()}
             </Text>
-            <Text style={styles.propertyName}>{`Part of the property ( ${
-              currentUnitData?.property || propertyPart
-            } )`}</Text>
+            <Text
+              style={
+                styles.propertyName
+              }>{`Part of the property ( ${currentUnitData?.property.name} )`}</Text>
           </View>
 
           {currentUnitData.contracts &&

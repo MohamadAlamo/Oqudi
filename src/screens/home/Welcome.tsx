@@ -34,7 +34,7 @@ const Welcome: React.FC<WelcomeProps> = ({navigation}) => {
       <TouchableOpacity
         style={styles.signInContainer}
         onPress={() => navigation.navigate(ROUTES.REGISTER)}>
-        <Text style={styles.signInText}>Sign in</Text>
+        <Text style={styles.signInText}>Sign up</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.loginContainer}

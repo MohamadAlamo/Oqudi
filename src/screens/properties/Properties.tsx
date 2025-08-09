@@ -129,8 +129,8 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
                     imageUri={{uri: imageUrl}}
                     propertyName={property.name}
                     address={property.location}
-                    leasedUnits={property.units.length}
-                    vacantUnits={property.units.length}
+                    leasedUnits={property.leasedUnits}
+                    vacantUnits={property.vacantUnits}
                   />
                   {index !== properties.length - 1 && (
                     <View style={styles.divider} />

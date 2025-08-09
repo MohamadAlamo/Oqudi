@@ -11,6 +11,8 @@ export type TProperty = {
   leaseType: TLeaseType;
   propertyIncome: IAmount;
   status: TVacancyStatus;
+  leasedUnits: number;
+  vacantUnits: number;
 };
 
 export const VACANCY_STATUS = {

@@ -62,7 +62,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     unitId,
     propertyId,
   } = route.params;
-  console.log(propertyId, ' propertyIdpropertyIdpropertyId');
+  console.log(propertyId._id, ' propertyIdpropertyIdpropertyId');
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
@@ -236,7 +236,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       // Calculate service charge per payment
       const contractData = {
         paymentSchedule: [],
-        property: propertyId,
+        property: propertyId._id,
         unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
