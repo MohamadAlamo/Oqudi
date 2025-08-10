@@ -1,4 +1,3 @@
-import {Asset} from 'react-native-image-picker';
 import {IAmount} from '../../../../lib/types/app';
 
 export type TProperty = {
@@ -13,6 +12,7 @@ export type TProperty = {
   status: TVacancyStatus;
   leasedUnits: number;
   vacantUnits: number;
+  contracts: [];
 };
 
 export const VACANCY_STATUS = {

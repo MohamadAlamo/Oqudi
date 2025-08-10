@@ -36,6 +36,8 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
     leasedUnits,
     vacantUnits,
     leaseType,
+    PropertyStatus,
+    PropertyContract,
   } = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
@@ -60,11 +62,21 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
       <View style={styles.parentContainer}>
         <View style={styles.container}>
           <Image source={{uri: propertyImage}} style={styles.propertyImage} />
-
-          <Text style={styles.propertyName}>{propertyName}</Text>
-          <View style={styles.locationContainer}>
-            <Location style={styles.icon} />
-            <Text style={styles.propertyLocation}>{propertyLocation}</Text>
+          <View style={styles.propertyInfoContainer}>
+            <View style={styles.propertyTextContainer}>
+              <Text style={styles.propertyName}>{propertyName}</Text>
+              <View style={styles.locationContainer}>
+                <Location style={styles.icon} />
+                <Text style={styles.propertyLocation}>{propertyLocation}</Text>
+              </View>
+            </View>
+            <View
+              style={[
+                styles.statusButton,
+                leaseType === 'vacant' ? styles.leased : styles.available,
+              ]}>
+              <Text style={styles.statusText}>{PropertyStatus}</Text>
+            </View>
           </View>
 
           <View style={styles.unitsContainer}>
@@ -73,9 +85,22 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
           </View>
           <View style={styles.Roundbutton2}>
             <RoundButton
-              onPress={() => {
-                console.log('hello');
-              }}
+              onPress={() =>
+                navigation.navigate('ContractFlow', {
+                  screen: ROUTES.ADDCONTRACT,
+                  params: {
+                    unitId: '',
+                    unitName: propertyName,
+                    areaSize: '',
+                    unitStatus: PropertyStatus,
+                    unitType: leaseType,
+                    propertyPart: propertyName,
+                    unitImage: propertyImage,
+                    haveContract: PropertyContract,
+                    propertyId: propertyId,
+                  },
+                })
+              }
               Title="Add contract"
             />
           </View>
@@ -223,6 +248,17 @@ const Styles = (theme: ThemeState) =>
       marginBottom: 20,
     },
 
+    propertyInfoContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      width: '100%',
+      marginBottom: 20,
+    },
+    propertyTextContainer: {
+      flex: 1,
+      marginRight: 10,
+    },
     propertyName: {
       fontSize: 24,
       fontWeight: 'bold',
@@ -287,6 +323,24 @@ const Styles = (theme: ThemeState) =>
       position: 'absolute',
       bottom: 80,
       right: -5,
+    },
+    statusButton: {
+      paddingVertical: 4,
+      paddingHorizontal: 35,
+      marginTop: 10,
+      borderRadius: 4,
+      alignSelf: 'flex-start',
+    },
+    leased: {
+      backgroundColor: 'black',
+    },
+    available: {
+      backgroundColor: '#4D9E70',
+    },
+    statusText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: '500',
     },
   });
 

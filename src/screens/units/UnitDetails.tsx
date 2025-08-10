@@ -44,9 +44,11 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   };
   const imageUrl = getImageUrl(currentUnitData?.pictures?.[0]);
   console.log(currentUnitData, 'currentUnitData');
+  console.log(currentUnitData?.contracts, 'contracts');
 
   const hasContract =
     currentUnitData?.contracts && currentUnitData.contracts?.length > 0;
+  const firstContract = currentUnitData?.contracts?.[0];
   const styles = useMemo(
     () => Styles(theme, hasContract),
     [theme, hasContract],
@@ -134,9 +136,9 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
                 Title="Add contract"
               />
             </View>
-          ) : (
-            <ContractInfo />
-          )}
+          ) : firstContract ? (
+            <ContractInfo contractData={firstContract} />
+          ) : null}
         </View>
       </ScrollView>
     </View>

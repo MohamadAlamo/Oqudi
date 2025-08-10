@@ -123,6 +123,8 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
                       propertyImage: imageUrl,
                       propertyLocation: property.location,
                       leaseType: property.leaseType,
+                      PropertyStatus: property.status,
+                      PropertyContract: property.contracts,
                     })
                   }>
                   <PropertyCard

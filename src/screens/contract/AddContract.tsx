@@ -63,7 +63,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     propertyId,
   } = route.params;
   console.log(propertyId._id, ' propertyIdpropertyIdpropertyId');
-
+  console.log(propertyId, ' propertyIdpropertyIdpropertyId');
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -236,7 +236,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       // Calculate service charge per payment
       const contractData = {
         paymentSchedule: [],
-        property: propertyId._id,
+        property: propertyId._id || propertyId,
         unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
@@ -253,7 +253,10 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           currency: scheduleFormData.serviceChargePerPayment.currency,
         },
 
-        VAT: paymentScheduleData.totalVATAmount.toString(),
+        VAT: {
+          value: paymentScheduleData.totalVATAmount.toString(),
+          currency: paymentScheduleData.vatPercentage,
+        },
       };
       console.log(paymentScheduleData, 'paymentScheduleData');
       console.log(contractData, 'contractData');

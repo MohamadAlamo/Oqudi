@@ -11,18 +11,39 @@ import PhoneIcon from '../../../assets/icons/Phone.svg';
 import MailIcon from '../../../assets/icons/Mail.svg';
 
 interface ContractInfoProps {
-  // Add any props you need to pass from UnitDetails
+  contractData: any;
 }
 
-const ContractInfo: React.FC<ContractInfoProps> = () => {
+const ContractInfo: React.FC<ContractInfoProps> = ({contractData}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
+  const calculateContractDuration = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return 'N/A';
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const years = Math.floor(diffDays / 365);
+    const months = Math.floor((diffDays % 365) / 30);
+
+    if (years > 0) {
+      return `${years} year${years > 1 ? 's' : ''}`;
+    } else if (months > 0) {
+      return `${months} month${months > 1 ? 's' : ''}`;
+    } else {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    }
+  };
   return (
     <>
       <View style={styles.revenueContainer}>
         <Text style={styles.revenueText}>Total for the full contract</Text>
-        <Text style={styles.revenueNumber}>200,000 SAR</Text>
+        <Text style={styles.revenueNumber}>
+          {`${contractData.amount.value.toLocaleString()} ${
+            contractData.amount.currency
+          }`}
+        </Text>
       </View>
 
       <View style={styles.contractInfoContainer}>
@@ -59,20 +80,33 @@ const ContractInfo: React.FC<ContractInfoProps> = () => {
           <View style={styles.dateColumn}>
             <Text style={styles.dateLabel}>Contract start date*</Text>
             <View style={styles.dateBox}>
-              <Text style={styles.dateText}>13.11.2023</Text>
+              <Text style={styles.dateText}>
+                {new Date(contractData.startDate)
+                  .toLocaleDateString('en-GB')
+                  .replace(/\//g, '.')}
+              </Text>
             </View>
           </View>
           <Text style={styles.dateSeparator}>-</Text>
           <View style={styles.dateColumn}>
             <Text style={styles.dateLabel}>Contract start date*</Text>
             <View style={styles.dateBox}>
-              <Text style={styles.dateText}>12.11.2024</Text>
+              <Text style={styles.dateText}>
+                {new Date(contractData.endDate)
+                  .toLocaleDateString('en-GB')
+                  .replace(/\//g, '.')}
+              </Text>
             </View>
           </View>
           <Text style={styles.dateSeparator}>/</Text>
           <View style={styles.dateColumn}>
             <View style={styles.dateBox}>
-              <Text style={styles.dateText}>1 year</Text>
+              <Text style={styles.dateText}>
+                {calculateContractDuration(
+                  contractData?.startDate,
+                  contractData?.endDate,
+                )}
+              </Text>
             </View>
           </View>
         </View>
@@ -83,11 +117,16 @@ const ContractInfo: React.FC<ContractInfoProps> = () => {
           <View style={styles.paymentRow}>
             <View style={styles.paymentColumn}>
               <Text style={styles.paymentLabel}>Payment Frequency</Text>
-              <Text style={styles.paymentValue}>Semi-annually</Text>
+              <Text style={styles.paymentValue}>
+                {contractData.paymentFrequency.charAt(0).toUpperCase() +
+                  contractData.paymentFrequency.slice(1)}
+              </Text>
             </View>
             <View style={styles.paymentColumn}>
               <Text style={styles.paymentLabel}>№ of payments</Text>
-              <Text style={styles.paymentValue}>2</Text>
+              <Text style={styles.paymentValue}>
+                {contractData.paymentSchedule.length}
+              </Text>
             </View>
           </View>
         </View>
@@ -97,10 +136,20 @@ const ContractInfo: React.FC<ContractInfoProps> = () => {
         <View style={styles.totalValue}>
           <Text style={styles.totalLabel}>Total contract value</Text>
           <View style={styles.totalAmountRow}>
-            <Text style={styles.totalAmount}>SAR 4,600.00</Text>
+            <Text style={styles.totalAmount}>
+              {`${
+                contractData.amount.currency
+              } ${contractData.amount.value.toLocaleString()} `}
+            </Text>
             <Text style={styles.deleteText}>Delete</Text>
           </View>
-          <Text style={styles.vatAmount}>+ SAR 400.00 VAT</Text>
+          <Text style={styles.vatAmount}>
+            +
+            {`${
+              contractData.amount.currency
+            } ${contractData.VAT.toLocaleString()} `}{' '}
+            VAT
+          </Text>
         </View>
       </View>
 
