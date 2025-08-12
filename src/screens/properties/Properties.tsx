@@ -133,6 +133,9 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
                     address={property.location}
                     leasedUnits={property.leasedUnits}
                     vacantUnits={property.vacantUnits}
+                    leaseType={property.leaseType}
+                    status={property.status}
+                    types={property.types}
                   />
                   {index !== properties.length - 1 && (
                     <View style={styles.divider} />

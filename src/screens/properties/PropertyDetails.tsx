@@ -19,8 +19,10 @@ import FloatinActionButton from '../../components/FloatinActionButton';
 import UnitsCard from '../units/UnitCard';
 import {useGetUnitsQuery} from '../../app/services/api/units';
 import {useGetPropertyByIdQuery} from '../../app/services/api/properties';
+import {useGetTenantByIdQuery} from '../../app/services/api/tenants';
 import {SERVER_URL} from '../../app/config';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
+import ContractInfo from '../units/components/ContractInfo';
 interface PropertyDetailsProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -72,6 +74,26 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   });
   const units = currentData?.data.docs || [];
 
+  // Contract logic for property (similar to UnitDetails)
+  const hasContract = PropertyContract && PropertyContract.length > 0;
+  const firstContract = hasContract ? PropertyContract[0] : null;
+
+  // Extract tenant ID from the first contract
+  const tenantId = firstContract?.tenant;
+  console.log(tenantId, 'property tenant ID');
+
+  // Fetch tenant data by ID if tenant ID exists
+  const {
+    data: tenantData,
+    isLoading: tenantLoading,
+    error: tenantError,
+  } = useGetTenantByIdQuery(tenantId || '', {
+    skip: !tenantId, // Skip the query if no tenant ID
+  });
+
+  const tenantInfo = tenantData?.data;
+  console.log(tenantInfo, 'property tenant info');
+
   // Show loading state with skeleton
   if (propertyLoading) {
     return (
@@ -102,63 +124,72 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   if (leaseType === 'whole') {
     return (
       <View style={styles.parentContainer}>
-        <View style={styles.container}>
-          <Image source={{uri: propertyImage}} style={styles.propertyImage} />
-          <View style={styles.propertyInfoContainer}>
-            <View style={styles.propertyTextContainer}>
-              <Text style={styles.propertyName}>{propertyName}</Text>
-              <View style={styles.locationContainer}>
-                <Location style={styles.icon} />
-                <Text style={styles.propertyLocation}>{propertyLocation}</Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            <Image source={{uri: propertyImage}} style={styles.propertyImage} />
+            <View style={styles.propertyInfoContainer}>
+              <View style={styles.propertyTextContainer}>
+                <Text style={styles.propertyName}>{propertyName}</Text>
+                <View style={styles.locationContainer}>
+                  <Location style={styles.icon} />
+                  <Text style={styles.propertyLocation}>
+                    {propertyLocation}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={[
+                  styles.statusButton,
+                  PropertyStatus === 'unavailable'
+                    ? styles.leased
+                    : styles.available,
+                ]}>
+                <Text style={styles.statusText}>
+                  {PropertyStatus.charAt(0).toUpperCase() +
+                    PropertyStatus.slice(1)}
+                </Text>
               </View>
             </View>
-            <View
-              style={[
-                styles.statusButton,
-                PropertyStatus === 'unavailable'
-                  ? styles.leased
-                  : styles.available,
-              ]}>
-              <Text style={styles.statusText}>{PropertyStatus}</Text>
-            </View>
-          </View>
 
-          <View style={styles.unitsContainer}>
-            {/* <Text style={styles.unitText}>Leased Units: {leasedUnits}</Text>
-            <Text style={styles.unitText}>Vacant Units: {vacantUnits}</Text> */}
+            <View style={styles.unitsContainer}>
+              {/* <Text style={styles.unitText}>Leased Units: {leasedUnits}</Text>
+              <Text style={styles.unitText}>Vacant Units: {vacantUnits}</Text> */}
+            </View>
+
+            {PropertyContract && PropertyContract.length === 0 ? (
+              <View style={styles.Roundbutton2}>
+                <RoundButton
+                  onPress={() =>
+                    navigation.navigate('ContractFlow', {
+                      screen: ROUTES.ADDCONTRACT,
+                      params: {
+                        unitId: '',
+                        unitName: propertyName,
+                        areaSize: '',
+                        unitStatus: PropertyStatus,
+                        unitType: leaseType,
+                        propertyPart: propertyName,
+                        unitImage: propertyImage,
+                        haveContract: PropertyContract,
+                        propertyId: propertyId,
+                        contractType: 'property',
+                      },
+                    })
+                  }
+                  Title="Add contract"
+                />
+              </View>
+            ) : firstContract ? (
+              <ContractInfo
+                contractData={firstContract}
+                tenantData={tenantInfo}
+              />
+            ) : null}
           </View>
-          <View style={styles.Roundbutton2}>
-            <RoundButton
-              onPress={() =>
-                navigation.navigate('ContractFlow', {
-                  screen: ROUTES.ADDCONTRACT,
-                  params: {
-                    unitId: '',
-                    unitName: propertyName,
-                    areaSize: '',
-                    unitStatus: PropertyStatus,
-                    unitType: leaseType,
-                    propertyPart: propertyName,
-                    unitImage: propertyImage,
-                    haveContract: PropertyContract,
-                    propertyId: propertyId,
-                    contractType: 'property',
-                    // Property details for navigation back
-                    // propertyName: propertyName,
-                    // propertyImage: propertyImage,
-                    // propertyLocation: propertyLocation,
-                    // leasedUnits: leasedUnits,
-                    // vacantUnits: vacantUnits,
-                    // leaseType: leaseType,
-                    // PropertyStatus: PropertyStatus,
-                    // PropertyContract: PropertyContract,
-                  },
-                })
-              }
-              Title="Add contract"
-            />
-          </View>
-        </View>
+        </ScrollView>
       </View>
     );
   }
@@ -404,6 +435,9 @@ const Styles = (theme: ThemeState) =>
       color: theme === 'light' ? COLORS.white : COLORS.white,
       fontSize: 16,
       textAlign: 'center',
+    },
+    scrollView: {
+      flex: 1,
     },
   });
 

@@ -242,10 +242,10 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
 
     try {
-      const contractData = {
+      // Build contract data - conditionally include unit field
+      const contractData: any = {
         paymentSchedule: [],
         property: propertyId._id || propertyId,
-        unit: unitId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
@@ -260,13 +260,17 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           value: Number(scheduleFormData.serviceChargePerPayment.amount),
           currency: scheduleFormData.serviceChargePerPayment.currency,
         },
-
         VAT: {
           value: paymentScheduleData.totalVATAmount,
           currency: scheduleFormData.serviceChargePerPayment.currency,
           percentage: paymentScheduleData.vatPercentage,
         },
       };
+
+      // Only add unit field if it's not a property contract
+      if (contractType !== 'property') {
+        contractData.unit = unitId;
+      }
       console.log(paymentScheduleData, 'paymentScheduleData');
       console.log(contractData, 'contractData');
 
@@ -281,11 +285,9 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
           text: 'OK',
           onPress: () => {
             if (contractType === 'property') {
-              navigation.navigate('PropertyFlow', {
-                screen: ROUTES.PROPERTY_DETAILS,
-                params: {
-                  propertyId: propertyId,
-                },
+              // Navigate back to PropertyDetails
+              navigation.navigate(ROUTES.PROPERTY_DETAILS, {
+                propertyId: propertyId,
               });
             } else {
               navigation.navigate('UnitsFlow', {

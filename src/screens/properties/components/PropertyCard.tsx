@@ -3,6 +3,7 @@ import {View, Text, Image, StyleSheet, ImageSourcePropType} from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../app/redux/store';
 import {ThemeState} from '../../../app/redux/themeSlice';
+import PropertyDash from '../../../assets/icons/PropertyDash.svg';
 
 interface PropertyCardProps {
   imageUri: ImageSourcePropType;
@@ -10,6 +11,9 @@ interface PropertyCardProps {
   address: string;
   leasedUnits: number;
   vacantUnits: number;
+  leaseType?: string;
+  status?: string;
+  types?: string[];
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -18,6 +22,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   address,
   leasedUnits,
   vacantUnits,
+  leaseType,
+  status,
+  types,
 }) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
@@ -27,17 +34,42 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       <View style={styles.propertyInfo}>
         <Text style={styles.propertyName}>{propertyName}</Text>
         <Text style={styles.address}>{address}</Text>
-        <View style={styles.unitStatusContainer}>
-          <View style={[styles.unitStatusButton, styles.leasedButton]}>
-            <Text style={styles.unitStatusText}>
-              Leased {leasedUnits} units
-            </Text>
+        <View style={styles.bottomRow}>
+          <View style={styles.unitStatusContainer}>
+            {leaseType === 'whole' ? (
+              <View
+                style={[
+                  styles.unitStatusButton,
+                  (status || 'unavailable').toLowerCase() === 'unavailable'
+                    ? styles.availableButton
+                    : styles.statusButton,
+                ]}>
+                <Text style={styles.unitStatusText}>
+                  {(status || 'unavailable').charAt(0).toUpperCase() +
+                    (status || 'unavailable').slice(1)}
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={[styles.unitStatusButton, styles.leasedButton]}>
+                  <Text style={styles.unitStatusText}>
+                    Leased {leasedUnits} units
+                  </Text>
+                </View>
+                <View style={[styles.unitStatusButton, styles.vacantButton]}>
+                  <Text style={styles.unitStatusText}>
+                    Vacant {vacantUnits} units
+                  </Text>
+                </View>
+              </>
+            )}
           </View>
-          <View style={[styles.unitStatusButton, styles.vacantButton]}>
-            <Text style={styles.unitStatusText}>
-              Vacant {vacantUnits} units
-            </Text>
-          </View>
+          {leaseType === 'whole' && types && types.length > 0 && (
+            <View style={styles.unitNameRow2}>
+              <PropertyDash style={styles.icon} />
+              <Text style={styles.unitTypeText}>{types.join(', ')}</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -76,9 +108,14 @@ const Styles = (theme: ThemeState) =>
       color: theme === 'light' ? '#7E7D86' : '#aaa',
       marginVertical: 4,
     },
+    bottomRow: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      marginTop: 10,
+    },
     unitStatusContainer: {
       flexDirection: 'row',
-      marginTop: 10,
     },
     unitStatusButton: {
       paddingVertical: 6,
@@ -92,10 +129,30 @@ const Styles = (theme: ThemeState) =>
     vacantButton: {
       backgroundColor: '#808080',
     },
+    statusButton: {
+      backgroundColor: '#4CAF50', // Green for unavailable/leased status
+    },
+    availableButton: {
+      backgroundColor: '#808080', // Gray for available status
+    },
     unitStatusText: {
       fontSize: 12,
       color: '#fff',
       fontWeight: '600',
+    },
+    unitNameRow2: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 4,
+      marginLeft: 20,
+    },
+    icon: {
+      marginRight: 8,
+    },
+    unitTypeText: {
+      fontSize: 12,
+      color: theme === 'light' ? '#7E7D86' : '#aaa',
+      fontWeight: '500',
     },
   });
 
