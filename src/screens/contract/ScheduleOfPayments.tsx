@@ -88,6 +88,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
     <View style={styles.parentContainer}>
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           {/* Contract Dates Section */}
@@ -162,18 +163,19 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
               </View>
             </View>
           ))}
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title={isLoading ? 'Loading...' : 'Save'}
-              onPress={handleSubmit}
-              backgroundColor={COLORS.primary}
-              titleColor="#331800"
-              disabled={isLoading}
-            />
-          </View>
         </View>
       </ScrollView>
+
+      {/* Fixed Save Button at Bottom */}
+      <View style={styles.fixedButtonContainer}>
+        <Button
+          title={isLoading ? 'Loading...' : 'Save'}
+          onPress={handleSubmit}
+          backgroundColor={COLORS.primary}
+          titleColor="#331800"
+          disabled={isLoading}
+        />
+      </View>
     </View>
   );
 };
@@ -182,20 +184,20 @@ const Styles = (theme: ThemeState) =>
   StyleSheet.create({
     parentContainer: {
       flex: 1,
-      backgroundColor: theme === 'light' ? COLORS.black : '#383642',
+      backgroundColor: theme === 'light' ? '#F4F3F2' : COLORS.backgroundDark,
     },
     scrollView: {
       flex: 1,
+    },
+    scrollContentContainer: {
+      paddingBottom: 100, // Add space for fixed button
     },
     container: {
       width: '100%',
       justifyContent: 'flex-start',
       alignItems: 'center',
-      borderTopRightRadius: 12,
-      borderTopLeftRadius: 12,
       backgroundColor: theme === 'light' ? '#F4F3F2' : COLORS.backgroundDark,
       padding: 20,
-      paddingBottom: 40,
     },
     topTextContainer: {
       alignSelf: 'flex-start',
@@ -285,6 +287,14 @@ const Styles = (theme: ThemeState) =>
     buttonContainer: {
       width: '100%',
       marginTop: 30,
+    },
+    fixedButtonContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: theme === 'light' ? '#F4F3F2' : COLORS.backgroundDark,
+      padding: 20,
     },
     // Payment card styles - Responsive
     paymentCard: {
