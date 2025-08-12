@@ -15,6 +15,7 @@ import {RootState} from '../../app/redux/store';
 import {ThemeState} from '../../app/redux/themeSlice';
 import {COLORS, ROUTES} from '../../lib/constants';
 import {useGetUnitByIdQuery} from '../../app/services/api/units';
+import {useGetTenantByIdQuery} from '../../app/services/api/tenants';
 
 import Vector from '../../assets/icons/Vector.svg';
 import RoundButton from '../../components/RoundButton';
@@ -49,6 +50,23 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   const hasContract =
     currentUnitData?.contracts && currentUnitData.contracts?.length > 0;
   const firstContract = currentUnitData?.contracts?.[0];
+
+  // Extract tenant ID from the first contract
+  const tenantId = firstContract?.tenant;
+  console.log(tenantId, 'tenant ID');
+
+  // Fetch tenant data by ID if tenant ID exists
+  const {
+    data: tenantData,
+    isLoading: tenantLoading,
+    error: tenantError,
+  } = useGetTenantByIdQuery(tenantId || '', {
+    skip: !tenantId, // Skip the query if no tenant ID
+  });
+
+  const tenantInfo = tenantData?.data;
+  console.log(tenantInfo, 'tenant info');
+
   const styles = useMemo(
     () => Styles(theme, hasContract),
     [theme, hasContract],
@@ -137,7 +155,10 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
               />
             </View>
           ) : firstContract ? (
-            <ContractInfo contractData={firstContract} />
+            <ContractInfo
+              contractData={firstContract}
+              tenantData={tenantInfo}
+            />
           ) : null}
         </View>
       </ScrollView>

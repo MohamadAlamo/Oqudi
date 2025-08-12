@@ -111,7 +111,7 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
               phoneNumber={`${item.phone || ''}`}
               email={`${item.email || ''}`}
               address={`${item.location || ''}`}
-              vatNumber={`${item.VAT || ''}`}
+              vatNumber={`${item.VAT_ID || ''}`}
               onEdit={() => {}}
               onDelete={() =>
                 handleDeleteTenant(

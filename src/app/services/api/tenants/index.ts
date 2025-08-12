@@ -6,6 +6,7 @@ import {TAddTenantRequest, TAddTenantResponse} from './types';
 
 export const {
   useGetTenantsQuery,
+  useGetTenantByIdQuery,
   useCreateTenantMutation,
   useDeleteTenantMutation,
 } = apiSlice.injectEndpoints({
@@ -13,6 +14,13 @@ export const {
     getTenants: builder.query<TAPIResponse<TGetTenantResponse[]>, void>({
       query: () => ({
         url: 'tenants',
+        method: 'GET',
+      }),
+      providesTags: ['Tenants'],
+    }),
+    getTenantById: builder.query<TAPIResponse<TGetTenantResponse>, string>({
+      query: tenantId => ({
+        url: `tenants/@${tenantId}`,
         method: 'GET',
       }),
       providesTags: ['Tenants'],

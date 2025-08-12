@@ -11,10 +11,14 @@ import PhoneIcon from '../../../assets/icons/Phone.svg';
 import MailIcon from '../../../assets/icons/Mail.svg';
 
 interface ContractInfoProps {
-  contractData: any;
+  contractData: any; // The contract data from currentUnitData.contracts[0]
+  tenantData?: any; // The tenant data fetched by ID
 }
 
-const ContractInfo: React.FC<ContractInfoProps> = ({contractData}) => {
+const ContractInfo: React.FC<ContractInfoProps> = ({
+  contractData,
+  tenantData,
+}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
@@ -35,6 +39,9 @@ const ContractInfo: React.FC<ContractInfoProps> = ({contractData}) => {
       return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
     }
   };
+
+  console.log(contractData, 'contractData');
+
   return (
     <>
       <View style={styles.revenueContainer}>
@@ -58,21 +65,23 @@ const ContractInfo: React.FC<ContractInfoProps> = ({contractData}) => {
             <Text style={styles.iconText}>
               <NameIcon style={styles.icon} />
             </Text>
-            <Text style={styles.tenantName}>Daniel Scott</Text>
+            <Text style={styles.tenantName}>
+              {tenantData ? `${tenantData.name}` : 'Loading...'}
+            </Text>
           </View>
 
           <View style={styles.tenantRow}>
             <Text style={styles.iconText}>
               <PhoneIcon style={styles.icon} />
             </Text>
-            <Text style={styles.contactInfo}>+12345678981</Text>
+            <Text style={styles.contactInfo}>{tenantData?.phone || 'N/A'}</Text>
           </View>
 
           <View style={styles.tenantRow}>
             <Text style={styles.iconText}>
               <MailIcon style={styles.icon} />
             </Text>
-            <Text style={styles.contactInfo}>example@mail.com</Text>
+            <Text style={styles.contactInfo}>{tenantData?.email || 'N/A'}</Text>
           </View>
         </View>
 
@@ -146,8 +155,8 @@ const ContractInfo: React.FC<ContractInfoProps> = ({contractData}) => {
           <Text style={styles.vatAmount}>
             +
             {`${
-              contractData.amount.currency
-            } ${contractData.VAT.toLocaleString()} `}{' '}
+              contractData.VAT.currency
+            } ${contractData.VAT.value.toLocaleString()} `}{' '}
             VAT
           </Text>
         </View>

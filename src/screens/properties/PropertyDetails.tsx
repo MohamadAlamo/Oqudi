@@ -98,6 +98,16 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                     unitImage: propertyImage,
                     haveContract: PropertyContract,
                     propertyId: propertyId,
+                    contractType: 'property',
+                    // Property details for navigation back
+                    // propertyName: propertyName,
+                    // propertyImage: propertyImage,
+                    // propertyLocation: propertyLocation,
+                    // leasedUnits: leasedUnits,
+                    // vacantUnits: vacantUnits,
+                    // leaseType: leaseType,
+                    // PropertyStatus: PropertyStatus,
+                    // PropertyContract: PropertyContract,
                   },
                 })
               }

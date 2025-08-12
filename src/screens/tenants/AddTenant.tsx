@@ -201,7 +201,7 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
         phone: inputPhone,
         email: inputEmail,
         location: inputAddress,
-        VAT: inputVatNumber,
+        VAT_ID: inputVatNumber,
         notes: inputAdditional,
       }).unwrap(),
     );
@@ -245,7 +245,7 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
         phone: inputPhone,
         email: inputEmail,
         location: inputAddress,
-        VAT: inputVatNumber,
+        VAT_ID: inputVatNumber,
         notes: inputAdditional,
       };
 

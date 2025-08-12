@@ -7,7 +7,7 @@ export type TGetTenantResponse = {
   phone: string;
   email: string;
   location: string;
-  VAT: string;
+  VAT_ID: string;
 };
 
 export type TAddTenantResponse = {
@@ -16,7 +16,7 @@ export type TAddTenantResponse = {
 
 export type TAddTenantRequest = {
   name: string;
-  VAT: string;
+  VAT_ID: string;
   location: string;
   email: string;
   phone: string;

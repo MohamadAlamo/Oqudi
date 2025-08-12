@@ -61,6 +61,16 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     selectedTenant,
     unitId,
     propertyId,
+    contractType,
+    // Property details for navigation back (when contractType is 'property')
+    // propertyName,
+    // propertyImage,
+    // propertyLocation,
+    // leasedUnits,
+    // vacantUnits,
+    // leaseType,
+    // PropertyStatus,
+    // PropertyContract,
   } = route.params;
   console.log(propertyId._id, ' propertyIdpropertyIdpropertyId');
   console.log(propertyId, ' propertyIdpropertyIdpropertyId');
@@ -216,7 +226,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
 
   // Handle final contract save with API call
   const handleSaveContract = async () => {
-    // Validate required fields
     if (!currentUser._id) {
       Alert.alert('Error', 'User not authenticated. Please log in again.');
       return;
@@ -233,7 +242,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     }
 
     try {
-      // Calculate service charge per payment
       const contractData = {
         paymentSchedule: [],
         property: propertyId._id || propertyId,
@@ -254,8 +262,9 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         },
 
         VAT: {
-          value: paymentScheduleData.totalVATAmount.toString(),
-          currency: paymentScheduleData.vatPercentage,
+          value: paymentScheduleData.totalVATAmount,
+          currency: scheduleFormData.serviceChargePerPayment.currency,
+          percentage: paymentScheduleData.vatPercentage,
         },
       };
       console.log(paymentScheduleData, 'paymentScheduleData');
@@ -267,25 +276,31 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       // Invalidate Units cache to trigger fresh data fetch
       dispatch(apiSlice.util.invalidateTags(['Units']));
 
-      // Show success message
       Alert.alert('Success', 'Contract created successfully!', [
         {
           text: 'OK',
           onPress: () => {
-            // Navigate to UnitsFlow with just the unitId
-            navigation.navigate('UnitsFlow', {
-              screen: ROUTES.UNIT_DETAILS,
-              params: {
-                unitId: route.params.unitId,
-              },
-            });
+            if (contractType === 'property') {
+              navigation.navigate('PropertyFlow', {
+                screen: ROUTES.PROPERTY_DETAILS,
+                params: {
+                  propertyId: propertyId,
+                },
+              });
+            } else {
+              navigation.navigate('UnitsFlow', {
+                screen: ROUTES.UNIT_DETAILS,
+                params: {
+                  unitId: route.params.unitId,
+                },
+              });
+            }
           },
         },
       ]);
     } catch (error: any) {
       console.error('Error creating contract:', error);
 
-      // Show error message
       Alert.alert(
         'Error',
         error?.data?.message || 'Failed to create contract. Please try again.',
