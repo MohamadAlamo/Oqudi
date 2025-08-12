@@ -7,6 +7,7 @@ import {UrlParamsBuilder} from '../../../../lib/helpers/api';
 
 export const {
   useGetPropertiesQuery,
+  useGetPropertyByIdQuery,
   useCreatePropertyMutation,
   useLazyGetPropertiesQuery,
 } = apiSlice.injectEndpoints({
@@ -17,6 +18,13 @@ export const {
     >({
       query: queryParams => ({
         url: `properties?${UrlParamsBuilder(queryParams)}`,
+        method: 'GET',
+      }),
+      providesTags: ['Properties'],
+    }),
+    getPropertyById: builder.query<TAPIResponse<TProperty>, string>({
+      query: propertyId => ({
+        url: `properties/@${propertyId}`,
         method: 'GET',
       }),
       providesTags: ['Properties'],

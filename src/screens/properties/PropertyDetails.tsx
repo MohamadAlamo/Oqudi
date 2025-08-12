@@ -18,7 +18,9 @@ import RoundButton from '../../components/RoundButton';
 import FloatinActionButton from '../../components/FloatinActionButton';
 import UnitsCard from '../units/UnitCard';
 import {useGetUnitsQuery} from '../../app/services/api/units';
+import {useGetPropertyByIdQuery} from '../../app/services/api/properties';
 import {SERVER_URL} from '../../app/config';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 interface PropertyDetailsProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -28,21 +30,37 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   navigation,
   route,
 }) => {
+  const {propertyId} = route.params;
+
+  // Fetch property data from API
   const {
-    propertyName,
-    propertyImage,
-    propertyLocation,
-    propertyId,
-    leasedUnits,
-    vacantUnits,
-    leaseType,
-    PropertyStatus,
-    PropertyContract,
-  } = route.params;
+    data: propertyData,
+    isLoading: propertyLoading,
+    error: propertyError,
+  } = useGetPropertyByIdQuery(propertyId);
+
+  const currentPropertyData = propertyData?.data;
+
+  // Extract property details from API response
+  const propertyName = currentPropertyData?.name || '';
+  const propertyLocation = currentPropertyData?.location || '';
+  const leasedUnits = currentPropertyData?.leasedUnits || 0;
+  const vacantUnits = currentPropertyData?.vacantUnits || 0;
+  const leaseType = currentPropertyData?.leaseType || 'units';
+  const PropertyStatus = currentPropertyData?.status || 'available';
+  const PropertyContract = currentPropertyData?.contracts || [];
+
+  // Helper function to construct full image URL
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return null;
+    return `${SERVER_URL}/${imagePath.replace(/^\//, '')}`;
+  };
+  const propertyImage = getImageUrl(currentPropertyData?.pictures?.[0]);
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
+  // Fetch units data (must be called before any conditional returns)
   const {currentData} = useGetUnitsQuery({
     filters: [
       {
@@ -53,6 +71,30 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
     ],
   });
   const units = currentData?.data.docs || [];
+
+  // Show loading state with skeleton
+  if (propertyLoading) {
+    return (
+      <View style={styles.parentContainer}>
+        <View style={styles.container}>
+          <LoadingSkeleton variant="property" />
+        </View>
+      </View>
+    );
+  }
+
+  // Show error state
+  if (propertyError || !currentPropertyData) {
+    return (
+      <View style={[styles.parentContainer, styles.loadingContainer]}>
+        <Text style={styles.loadingText}>
+          {propertyError
+            ? 'Failed to load property details'
+            : 'Property not found'}
+        </Text>
+      </View>
+    );
+  }
   console.log(units, 'units');
   console.log(leaseType, 'leaseType');
 
@@ -73,7 +115,9 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
             <View
               style={[
                 styles.statusButton,
-                leaseType === 'vacant' ? styles.leased : styles.available,
+                PropertyStatus === 'unavailable'
+                  ? styles.leased
+                  : styles.available,
               ]}>
               <Text style={styles.statusText}>{PropertyStatus}</Text>
             </View>
@@ -351,6 +395,15 @@ const Styles = (theme: ThemeState) =>
       color: '#fff',
       fontSize: 12,
       fontWeight: '500',
+    },
+    loadingContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      color: theme === 'light' ? COLORS.white : COLORS.white,
+      fontSize: 16,
+      textAlign: 'center',
     },
   });
 
