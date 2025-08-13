@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import Hide from '../assets/icons/Hide.svg';
 import Show from '../assets/icons/Show.svg';
+import Check from '../assets/icons/Check.svg';
+import Error from '../assets/icons/Error.svg';
 import {SvgProps} from 'react-native-svg';
 import {RootState} from '../app/redux/store';
 import {useSelector} from 'react-redux';
@@ -72,7 +74,7 @@ export const Input: React.FC<InputProps> = ({
   isPassword = false,
   label,
   placeholderTextColor = '#000',
-  borderColor = '#4D9E70',
+  borderColor = COLORS.Success,
   labelStyle = {},
   onValidate,
   numberOfLines = 1,
@@ -86,8 +88,8 @@ export const Input: React.FC<InputProps> = ({
   const isInputSuccess = onValidate ? onValidate(value) : success;
 
   const getBorderColor = (): string => {
-    if (isInputError) return '#EE6749'; // Use consistent red color
-    if (isInputSuccess) return '#4D9E70'; // Green for success
+    if (isInputError) return COLORS.Error;
+    if (isInputSuccess) return COLORS.Success;
     return theme === 'dark'
       ? COLORS.CardBackground
       : COLORS.BackgroundLightGray;
@@ -119,6 +121,16 @@ export const Input: React.FC<InputProps> = ({
           multiline={multiline}
         />
         {icon && <View style={styles.icon}>{icon}</View>}
+        {!isPassword && isInputSuccess && (
+          <View style={styles.icon}>
+            <Check width={30} height={30} />
+          </View>
+        )}
+        {!isPassword && isInputError && (
+          <View style={styles.icon}>
+            <Error width={30} height={30} />
+          </View>
+        )}
         {isPassword && (
           <TouchableOpacity
             onPress={togglePasswordVisibility}

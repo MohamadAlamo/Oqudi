@@ -13,5 +13,8 @@ export default {
   CardBackground: '#383642',
   ErrorBorder: '#EE6749',
   SuccessBorder: '#4D9E70',
+  Error: '#EE6749',
+  Success: '#4D9E70',
   lightGray: '#E8E8E8',
+  inputBackground: '#F4F3F2',
 };
