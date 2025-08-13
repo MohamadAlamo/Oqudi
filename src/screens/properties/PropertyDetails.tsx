@@ -98,9 +98,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   if (propertyLoading) {
     return (
       <View style={styles.parentContainer}>
-        <View style={styles.container}>
-          <LoadingSkeleton variant="property" />
-        </View>
+        <LoadingSkeleton variant="property" />
       </View>
     );
   }

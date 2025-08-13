@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -20,6 +20,7 @@ import {useGetTenantByIdQuery} from '../../app/services/api/tenants';
 import Vector from '../../assets/icons/Vector.svg';
 import RoundButton from '../../components/RoundButton';
 import ContractInfo from './components/ContractInfo';
+import LoadingSkeleton from '../../components/LoadingSkeleton';
 import {SERVER_URL} from '../../app/config';
 import colors from '../../lib/constants/colors';
 
@@ -30,11 +31,23 @@ interface UnitDetailsProps {
 
 const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   const {unitId, propertyId, propertyPart} = route.params;
+  const [showLoading, setShowLoading] = useState(true);
 
   const theme = useSelector((state: RootState) => state.theme.theme);
 
   // Fetch fresh unit data from API
   const {data: unitData, isLoading, error} = useGetUnitByIdQuery(unitId);
+
+  // Add 2-second minimum loading delay
+  useEffect(() => {
+    if (!isLoading && unitData) {
+      const timer = setTimeout(() => {
+        setShowLoading(false);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, unitData]);
 
   // Use fresh data from API
   const currentUnitData = unitData?.data;
@@ -72,6 +85,15 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
     () => Styles(theme, hasContract),
     [theme, hasContract],
   );
+
+  // Show loading skeleton while data is being fetched or during delay
+  if (isLoading || showLoading) {
+    return (
+      <View style={styles.parentContainer}>
+        <LoadingSkeleton variant="property" />
+      </View>
+    );
+  }
 
   // Show error state or if no data
   if (error || !currentUnitData) {
