@@ -206,7 +206,7 @@ const Styles = (theme: ThemeState, hasContract: boolean) =>
     container: {
       flex: 1,
       justifyContent: 'flex-start',
-      alignItems: 'center',
+      // alignItems: 'center',
       borderTopRightRadius: 12,
       borderTopLeftRadius: 12,
       backgroundColor:

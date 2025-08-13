@@ -452,7 +452,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             onChangeText={handleRentalAmountChange}
             currency={rentalCurrency}
             onCurrencyChange={setRentalCurrency}
-            label="Rental payment invoice*"
+            label="Rental payment invoice (Annual)*"
             placeholder="0,000"
             error={rentalAmountError}
             success={rentalAmount.length > 0 && !rentalAmountError}
@@ -472,7 +472,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             onChangeText={handleServiceChargeChange}
             currency={serviceCurrency}
             onCurrencyChange={setServiceCurrency}
-            label="Service charge per payment"
+            label="Service charge per payment (Annual)"
             placeholder="0,000"
             error={serviceChargeError}
             success={serviceCharge.length > 0 && !serviceChargeError}
