@@ -108,11 +108,11 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
 
   return (
     <View style={styles.parentContainer}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.card}>
             <Image
               source={{
@@ -183,8 +183,8 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
               tenantData={tenantInfo}
             />
           ) : null}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -201,6 +201,7 @@ const Styles = (theme: ThemeState, hasContract: boolean) =>
     scrollContent: {
       flexGrow: 1,
       paddingBottom: 20,
+      minHeight: '100%',
     },
     container: {
       flex: 1,

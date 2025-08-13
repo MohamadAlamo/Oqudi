@@ -322,6 +322,7 @@ const Styles = (theme: ThemeState) =>
       borderTopLeftRadius: 12,
       backgroundColor: theme === 'light' ? COLORS.white : COLORS.backgroundDark,
       padding: 20,
+      minHeight: '100%',
     },
 
     propertyImage: {
