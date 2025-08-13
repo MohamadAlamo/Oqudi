@@ -167,9 +167,11 @@ const ContractInfo: React.FC<ContractInfoProps> = ({
         onPress={() => {
           console.log('End contract pressed');
         }}
-        backgroundColor={COLORS.BackgroundLightGray}
-        titleColor={COLORS.black}
-        borderColor={theme === 'dark' ? COLORS.primary : COLORS.black}
+        backgroundColor={
+          theme === 'dark' ? COLORS.backgroundDark : COLORS.BackgroundLightGray
+        }
+        titleColor={theme === 'dark' ? COLORS.white : COLORS.black}
+        borderColor={theme === 'dark' ? COLORS.white : COLORS.black}
         // disabled={isLoading}
       />
     </>
@@ -197,7 +199,7 @@ const Styles = (theme: ThemeState) =>
       color: '#000000',
     },
     contractInfoContainer: {
-      backgroundColor: theme === 'light' ? '#F8F8F8' : '#2A2A2A',
+      backgroundColor: theme === 'light' ? '#F8F8F8' : '#F8F8F8',
       borderRadius: 15,
       padding: 20,
       marginTop: 20,
@@ -214,7 +216,7 @@ const Styles = (theme: ThemeState) =>
     contractTitle: {
       fontSize: 18,
       fontWeight: '600',
-      color: theme === 'light' ? COLORS.black : COLORS.white,
+      color: theme === 'light' ? COLORS.black : COLORS.black,
     },
     editText: {
       fontSize: 16,
@@ -239,11 +241,11 @@ const Styles = (theme: ThemeState) =>
     tenantName: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme === 'light' ? COLORS.black : COLORS.white,
+      color: theme === 'light' ? COLORS.black : COLORS.black,
     },
     contactInfo: {
       fontSize: 14,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
     },
     contractDates: {
       flexDirection: 'row',
@@ -256,23 +258,23 @@ const Styles = (theme: ThemeState) =>
     },
     dateLabel: {
       fontSize: 12,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       marginBottom: 5,
     },
     dateBox: {
-      backgroundColor: theme === 'light' ? '#E8E8E8' : '#404040',
+      backgroundColor: COLORS.lightGray,
       borderRadius: 8,
       padding: 12,
       alignItems: 'center',
     },
     dateText: {
       fontSize: 14,
-      color: theme === 'light' ? COLORS.black : COLORS.white,
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       fontWeight: '500',
     },
     dateSeparator: {
       fontSize: 18,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       marginHorizontal: 8,
       marginBottom: 12,
     },
@@ -289,39 +291,39 @@ const Styles = (theme: ThemeState) =>
     },
     paymentLabel: {
       fontSize: 14,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       marginBottom: 5,
     },
     paymentValue: {
       fontSize: 16,
       fontWeight: '600',
-      color: theme === 'light' ? COLORS.black : COLORS.white,
+      color: theme === 'light' ? COLORS.black : COLORS.black,
     },
     totalValue: {
       marginTop: 10,
     },
     totalLabel: {
       fontSize: 14,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       marginBottom: 5,
     },
     totalAmount: {
       fontSize: 18,
       fontWeight: '700',
-      color: theme === 'light' ? COLORS.black : COLORS.white,
+      color: theme === 'light' ? COLORS.black : COLORS.black,
       marginBottom: 2,
     },
     vatAmount: {
       fontSize: 14,
-      color: theme === 'light' ? '#666' : '#BBB',
+      color: theme === 'light' ? COLORS.black : COLORS.black,
     },
     deleteText: {
       fontSize: 16,
-      color: '#FF4444',
+      color: COLORS.ErrorBorder,
     },
     divider: {
       height: 1,
-      backgroundColor: theme === 'light' ? '#E0E0E0' : '#404040',
+      backgroundColor: theme === 'light' ? '#E0E0E0' : '#E0E0E0',
       marginVertical: 10,
       marginHorizontal: -20,
       width: 'auto',

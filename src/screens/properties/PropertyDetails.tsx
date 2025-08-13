@@ -309,7 +309,7 @@ const Styles = (theme: ThemeState) =>
   StyleSheet.create({
     parentContainer: {
       flex: 1,
-      backgroundColor: theme === 'light' ? COLORS.black : '#383642',
+      backgroundColor: theme === 'light' ? COLORS.black : COLORS.CardBackground,
     },
     second222: {
       width: '100%',
@@ -406,7 +406,7 @@ const Styles = (theme: ThemeState) =>
     },
     addButton: {
       position: 'absolute',
-      bottom: 80,
+      bottom: 5,
       right: -5,
     },
     statusButton: {

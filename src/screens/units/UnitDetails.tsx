@@ -21,6 +21,7 @@ import Vector from '../../assets/icons/Vector.svg';
 import RoundButton from '../../components/RoundButton';
 import ContractInfo from './components/ContractInfo';
 import {SERVER_URL} from '../../app/config';
+import colors from '../../lib/constants/colors';
 
 interface UnitDetailsProps {
   navigation: StackNavigationProp<any, any>;
@@ -170,7 +171,7 @@ const Styles = (theme: ThemeState, hasContract: boolean) =>
   StyleSheet.create({
     parentContainer: {
       flex: 1,
-      backgroundColor: theme === 'light' ? COLORS.black : '#383642',
+      backgroundColor: theme === 'light' ? COLORS.black : colors.CardBackground,
     },
     scrollView: {
       flex: 1,

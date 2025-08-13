@@ -13,4 +13,5 @@ export default {
   CardBackground: '#383642',
   ErrorBorder: '#EE6749',
   SuccessBorder: '#4D9E70',
+  lightGray: '#E8E8E8',
 };
