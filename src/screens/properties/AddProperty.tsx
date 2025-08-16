@@ -52,12 +52,14 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
   const [propertyPictures, setPropertyPictures] = useState<string[]>([]);
   const [leaseType, setLeaseType] = useState<TLeaseType>(LEASE_TYPE.units);
   const [propertyTypes, setPropertyTypes] = useState<TUnitTypes[]>([]);
+  const [propertySize, setPropertySize] = useState<string>('');
 
   // Error states
   const [nameError, setNameError] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<boolean>(false);
   const [pictureError, setPictureError] = useState<boolean>(false);
   const [typesError, setTypesError] = useState<boolean>(false);
+  const [sizeError, setSizeError] = useState<boolean>(false);
 
   // Modal state
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
@@ -85,6 +87,11 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
     return true; // Not required for units lease type
   };
 
+  const validateSize = (size: string): boolean => {
+    const numericSize = parseFloat(size);
+    return !isNaN(numericSize) && numericSize > 0;
+  };
+
   // Handle input changes with validation
   const handleNameChange = (text: string) => {
     setPropertyName(text);
@@ -101,6 +108,15 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
       setLocationError(!validateLocation(text));
     } else {
       setLocationError(false);
+    }
+  };
+
+  const handleSizeChange = (text: string) => {
+    setPropertySize(text);
+    if (text.length > 0) {
+      setSizeError(!validateSize(text));
+    } else {
+      setSizeError(false);
     }
   };
 
@@ -134,6 +150,12 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
     if (selected === LEASE_TYPE.units || selectedTypes.length > 0) {
       setTypesError(false);
     }
+
+    // Clear size field and error when switching to units
+    if (selected === LEASE_TYPE.units) {
+      setPropertySize('');
+      setSizeError(false);
+    }
   };
 
   const handleSave = async () => {
@@ -142,12 +164,17 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
     const isLocationValid = validateLocation(propertyLocation);
     const isPicturesValid = validatePictures(propertyPictures);
     const isTypesValid = validatePropertyTypes(propertyTypes, leaseType);
+    const isSizeValid =
+      leaseType === LEASE_TYPE.whole ? validateSize(propertySize) : true;
 
     // Set validation errors
     setNameError(!isNameValid && propertyName.length > 0);
     setLocationError(!isLocationValid && propertyLocation.length > 0);
     setPictureError(!isPicturesValid);
     setTypesError(!isTypesValid);
+    setSizeError(
+      leaseType === LEASE_TYPE.whole && !isSizeValid && propertySize.length > 0,
+    );
 
     // Check if inputs are empty
     if (!propertyName.trim()) {
@@ -177,8 +204,23 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
       return;
     }
 
+    if (leaseType === LEASE_TYPE.whole && !propertySize.trim()) {
+      setSizeError(true);
+      Alert.alert(
+        'Error',
+        'Property area size is required for whole property lease',
+      );
+      return;
+    }
+
     // Check validation
-    if (!isNameValid || !isLocationValid || !isPicturesValid || !isTypesValid) {
+    if (
+      !isNameValid ||
+      !isLocationValid ||
+      !isPicturesValid ||
+      !isTypesValid ||
+      !isSizeValid
+    ) {
       Alert.alert('Validation Error', 'Please fix the errors above');
       return;
     }
@@ -188,8 +230,12 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
       location: propertyLocation,
       pictures: propertyPictures,
       leaseType: leaseType,
-      ...(leaseType === LEASE_TYPE.whole && {types: propertyTypes}),
+      ...(leaseType === LEASE_TYPE.whole && {
+        types: propertyTypes,
+        size: propertySize,
+      }),
     };
+    console.log(requestData, 'requestDatarequestDatarequestData');
 
     const [result, error] = await asyncHandler(createFn(requestData).unwrap());
 
@@ -277,6 +323,21 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
               )}
             </View>
 
+            {leaseType === LEASE_TYPE.whole && (
+              <Input
+                label="Property area size*"
+                value={propertySize}
+                onChangeText={handleSizeChange}
+                placeholder="Enter property area size"
+                keyboardType="numeric"
+                borderColor={theme === 'dark' ? '#24232A' : 'white'}
+                labelStyle={styles.label}
+                placeholderTextColor={theme === 'dark' ? '#7E7D86' : '#7E7D86'}
+                error={sizeError}
+                success={propertySize.length > 0 && !sizeError}
+              />
+            )}
+
             <View>
               <Button
                 title={isLoading ? 'Saving...' : 'Save'}
@@ -302,7 +363,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
 const Styles = (theme: ThemeState) =>
   StyleSheet.create({
     avoidView: {flex: 1},
-    scrollView: {marginBottom: 100},
+    scrollView: {marginBottom: 10},
     parentContainer: {
       flex: 1,
       backgroundColor: '#383642',
