@@ -1,4 +1,5 @@
 import {IAmount} from '../../../../lib/types/app';
+import {TContract} from '../contracts/types';
 
 export type TProperty = {
   _id: string;
@@ -12,7 +13,7 @@ export type TProperty = {
   status: TVacancyStatus;
   leasedUnits: number;
   vacantUnits: number;
-  contracts: [];
+  contracts: TContract[];
 };
 
 export const VACANCY_STATUS = {

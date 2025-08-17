@@ -50,7 +50,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   const vacantUnits = currentPropertyData?.vacantUnits || 0;
   const leaseType = currentPropertyData?.leaseType || 'units';
   const PropertyStatus = currentPropertyData?.status || 'available';
-  const PropertyContract = currentPropertyData?.contracts || [];
+  const PropertyContract = currentPropertyData?.contracts;
 
   // Helper function to construct full image URL
   const getImageUrl = (imagePath: string) => {
@@ -64,13 +64,12 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
 
   // Fetch units data (must be called before any conditional returns)
   const {currentData} = useGetUnitsQuery({
-    filters: [
-      {
-        field: 'property',
+    filters: {
+      property: {
         operator: 'equals',
         value: propertyId,
       },
-    ],
+    },
   });
   const units = currentData?.data.docs || [];
 

@@ -41,14 +41,14 @@ const Properties: React.FC<PropertiesProps> = ({navigation}) => {
         console.log(id, 'this is id ');
 
         trigger({
-          limit: 120,
-          filters: [
-            {
-              field: 'owner',
-              operator: 'equals',
-              value: id,
-            },
-          ],
+          limit: 220,
+          // filters: [
+          //   {
+          //     field: 'owner',
+          //     operator: 'equals',
+          //     value: id,
+          //   },
+          // ],
         });
         setOwnerId(id);
       } catch (error) {

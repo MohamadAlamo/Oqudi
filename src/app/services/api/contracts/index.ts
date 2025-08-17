@@ -21,7 +21,7 @@ export const {
         method: 'POST',
         body: credentials,
       }),
-      invalidatesTags: ['Contracts'],
+      invalidatesTags: ['Contracts', 'Properties'],
     }),
     getContracts: builder.query<TAPIResponse<TContract[]>, void>({
       query: () => ({

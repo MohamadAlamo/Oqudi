@@ -1,18 +1,20 @@
-export type IFilter = {
-  field: string;
-  operator:
-    | 'equals'
-    | 'not-equal'
-    | 'greater'
-    | 'less-than'
-    | 'greater-equal'
-    | 'less-equal'
-    | 'null'
-    | 'not-null'
-    | 'between'
-    | 'contains';
-  value: unknown;
-};
+export type IFilter = Record<
+  string,
+  {
+    operator:
+      | 'equals'
+      | 'not-equal'
+      | 'greater'
+      | 'less-than'
+      | 'greater-equal'
+      | 'less-equal'
+      | 'null'
+      | 'not-null'
+      | 'between'
+      | 'contains';
+    value: unknown;
+  }
+>;
 
 export type TBaseRow<T> = T & {
   _id: string;

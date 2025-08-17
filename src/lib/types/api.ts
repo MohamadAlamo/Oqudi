@@ -11,7 +11,7 @@ export type TFeedback = {
 };
 
 export interface IGetQueryParams {
-  filters?: IFilter[];
+  filters?: IFilter;
   limit?: number;
   page?: number;
   sort?: string;

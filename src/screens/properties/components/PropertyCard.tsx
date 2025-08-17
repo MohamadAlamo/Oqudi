@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../../app/redux/store';
 import {ThemeState} from '../../../app/redux/themeSlice';
 import PropertyDash from '../../../assets/icons/PropertyDash.svg';
+import {COLORS} from '../../../lib/constants';
 
 interface PropertyCardProps {
   imageUri: ImageSourcePropType;
@@ -40,13 +41,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
               <View
                 style={[
                   styles.unitStatusButton,
-                  (status || 'unavailable').toLowerCase() === 'unavailable'
-                    ? styles.availableButton
-                    : styles.statusButton,
+                  status.toLowerCase() === 'rented'
+                    ? styles.rentedButton
+                    : styles.vacantButton,
                 ]}>
                 <Text style={styles.unitStatusText}>
-                  {(status || 'unavailable').charAt(0).toUpperCase() +
-                    (status || 'unavailable').slice(1)}
+                  {status.charAt(0).toUpperCase() +
+                    status.slice(1).toLowerCase()}
                 </Text>
               </View>
             ) : (
@@ -124,16 +125,19 @@ const Styles = (theme: ThemeState) =>
       marginRight: 8,
     },
     leasedButton: {
-      backgroundColor: '#4CAF50',
+      backgroundColor: COLORS.Success,
     },
     vacantButton: {
-      backgroundColor: '#808080',
+      backgroundColor: COLORS.black,
+    },
+    rentedButton: {
+      backgroundColor: COLORS.Success,
     },
     statusButton: {
-      backgroundColor: '#4CAF50', // Green for unavailable/leased status
+      backgroundColor: COLORS.Success,
     },
     availableButton: {
-      backgroundColor: '#808080', // Gray for available status
+      backgroundColor: '#808080',
     },
     unitStatusText: {
       fontSize: 12,

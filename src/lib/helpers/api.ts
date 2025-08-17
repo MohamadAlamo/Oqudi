@@ -18,5 +18,11 @@ export const UrlParamsBuilder = (params: Partial<IGetQueryParams>) => {
     ? 'filters=' + JSON.stringify(params.filters)
     : undefined;
 
-  return urlParamsJoiner(limit, sort, page, filters);
+  // const filter1 = Object.entries(filters || {}).map(([field, {operator , value}]) =>{
+  //   return ``
+  // })
+  const filter2 = params.filters
+    ? 'filters=' + JSON.stringify(params.filters)
+    : undefined;
+  return urlParamsJoiner(limit, sort, page, filter2);
 };
