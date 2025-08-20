@@ -98,6 +98,25 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     return text.replace(/[^0-9.,]/g, '');
   };
 
+  // Currency synchronization handlers
+  const handleRentalCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+    setRentalCurrency(newCurrency);
+    setServiceCurrency(newCurrency);
+    setSecurityCurrency(newCurrency);
+  };
+
+  const handleServiceCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+    setRentalCurrency(newCurrency);
+    setServiceCurrency(newCurrency);
+    setSecurityCurrency(newCurrency);
+  };
+
+  const handleSecurityCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+    setRentalCurrency(newCurrency);
+    setServiceCurrency(newCurrency);
+    setSecurityCurrency(newCurrency);
+  };
+
   // Handle input changes with validation
   const handleRentalAmountChange = (text: string) => {
     const filteredText = filterNumericInput(text);
@@ -193,7 +212,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
 
   // Calculate payment schedule
   const calculatePaymentSchedule = () => {
-    const totalMonths = parseDurationToMonths(duration || '1 year');
+    const totalMonths = parseDurationToMonths(duration);
     const intervalMonths = getPaymentIntervalMonths(paymentFrequency);
     const numberOfPayments = Math.ceil(totalMonths / intervalMonths);
 
@@ -451,7 +470,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             value={rentalAmount}
             onChangeText={handleRentalAmountChange}
             currency={rentalCurrency}
-            onCurrencyChange={setRentalCurrency}
+            onCurrencyChange={handleRentalCurrencyChange}
             label="Rental payment invoice (Annual)*"
             placeholder="0,000"
             error={rentalAmountError}
@@ -471,7 +490,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             value={serviceCharge}
             onChangeText={handleServiceChargeChange}
             currency={serviceCurrency}
-            onCurrencyChange={setServiceCurrency}
+            onCurrencyChange={handleServiceCurrencyChange}
             label="Service charge per payment (Annual)"
             placeholder="0,000"
             error={serviceChargeError}
@@ -495,7 +514,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
             value={securityDeposit}
             onChangeText={handleSecurityDepositChange}
             currency={securityCurrency}
-            onCurrencyChange={setSecurityCurrency}
+            onCurrencyChange={handleSecurityCurrencyChange}
             label="Security deposit paid"
             placeholder="0,00"
             error={securityDepositError}

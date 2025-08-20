@@ -31,13 +31,13 @@ const Login: React.FC<LoginProps> = ({navigation}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
-  const [inputEmail, setInputEmail] = useState<string>(
-    'Mohammedalamo@gmail.com',
-  );
-  const [inputPassword, setInputPassword] = useState<string>('P@ssw0rd');
+  // const [inputEmail, setInputEmail] = useState<string>(
+  //   'Mohammedalamo@gmail.com',
+  // );
+  // const [inputPassword, setInputPassword] = useState<string>('P@ssw0rd');
 
-  // const [inputEmail, setInputEmail] = useState<string>('');
-  // const [inputPassword, setInputPassword] = useState<string>('');
+  const [inputEmail, setInputEmail] = useState<string>('');
+  const [inputPassword, setInputPassword] = useState<string>('');
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string>('');
