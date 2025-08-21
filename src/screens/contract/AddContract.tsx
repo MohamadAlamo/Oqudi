@@ -252,12 +252,16 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         endDate: endDate.toISOString(),
         paymentFrequency: scheduleFormData.paymentFrequency.toLowerCase(),
         amount: {
-          value: Number(paymentScheduleData.totalContractValue),
+          value: Number(
+            scheduleFormData.rentalPaymentInvoice.amount.replace(/,/g, ''),
+          ),
           currency: scheduleFormData.rentalPaymentInvoice.currency,
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
-          value: Number(scheduleFormData.serviceChargePerPayment.amount),
+          value: Number(
+            scheduleFormData.serviceChargePerPayment.amount.replace(/,/g, ''),
+          ),
           currency: scheduleFormData.serviceChargePerPayment.currency,
         },
         VAT: {

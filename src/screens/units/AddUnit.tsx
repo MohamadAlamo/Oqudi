@@ -216,10 +216,14 @@ const AddUnit: React.FC<AddUnitProps> = ({navigation, route}) => {
     <KeyboardAvoidingView
       style={styles.avoidView}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? -160 : -180}>
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
       <View style={styles.parentContainer}>
         <View style={styles.container}>
-          <ScrollView style={styles.scrollView}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContentContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}>
             <View>
               <View style={styles.uploadPhoto}>
                 <Text style={styles.PhotoText}>Add photo of the unit*</Text>
@@ -296,6 +300,10 @@ const Styles = (theme: ThemeState) =>
     avoidView: {flex: 1},
     scrollView: {
       paddingHorizontal: 10,
+    },
+    scrollContentContainer: {
+      flexGrow: 1,
+      paddingBottom: 100,
     },
     parentContainer: {
       flex: 1,

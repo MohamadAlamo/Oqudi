@@ -1,5 +1,13 @@
 import React, {useMemo, useState, useEffect} from 'react';
-import {View, StyleSheet, Text, ScrollView, Alert} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../app/redux/store';
@@ -102,6 +110,28 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     return text.replace(/[^0-9.,]/g, '');
   };
 
+  // Format number with commas for thousands separator
+  const formatNumberWithCommas = (text: string): string => {
+    // Remove existing commas first
+    const cleanText = text.replace(/,/g, '');
+
+    // If empty or just a decimal point, return as is
+    if (!cleanText || cleanText === '.') return cleanText;
+
+    // Split by decimal point
+    const parts = cleanText.split('.');
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+
+    // Add commas to integer part
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    // Combine with decimal part if it exists
+    return decimalPart !== undefined
+      ? `${formattedInteger}.${decimalPart}`
+      : formattedInteger;
+  };
+
   // Currency synchronization handlers
   const handleRentalCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
     setRentalCurrency(newCurrency);
@@ -124,10 +154,11 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
   // Handle input changes with validation
   const handleRentalAmountChange = (text: string) => {
     const filteredText = filterNumericInput(text);
-    setRentalAmount(filteredText);
+    const formattedText = formatNumberWithCommas(filteredText);
+    setRentalAmount(formattedText);
     setRentalAmountTouched(true);
-    if (filteredText.length > 0) {
-      setRentalAmountError(!validateAmount(filteredText));
+    if (formattedText.length > 0) {
+      setRentalAmountError(!validateAmount(formattedText));
     } else {
       setRentalAmountError(true); // Show error when empty after being touched
     }
@@ -135,10 +166,11 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
 
   const handleServiceChargeChange = (text: string) => {
     const filteredText = filterNumericInput(text);
-    setServiceCharge(filteredText);
+    const formattedText = formatNumberWithCommas(filteredText);
+    setServiceCharge(formattedText);
     setServiceChargeTouched(true);
-    if (filteredText.length > 0) {
-      setServiceChargeError(!validateAmount(filteredText));
+    if (formattedText.length > 0) {
+      setServiceChargeError(!validateAmount(formattedText));
     } else {
       setServiceChargeError(true); // Show error when empty after being touched
     }
@@ -157,10 +189,11 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
 
   const handleSecurityDepositChange = (text: string) => {
     const filteredText = filterNumericInput(text);
-    setSecurityDeposit(filteredText);
+    const formattedText = formatNumberWithCommas(filteredText);
+    setSecurityDeposit(formattedText);
     setSecurityDepositTouched(true);
-    if (filteredText.length > 0) {
-      setSecurityDepositError(!validateAmount(filteredText));
+    if (formattedText.length > 0) {
+      setSecurityDepositError(!validateAmount(formattedText));
     } else {
       setSecurityDepositError(true); // Show error when empty after being touched
     }
@@ -326,124 +359,137 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     // TODO: Navigate to next screen or save data to API
   };
   return (
-    <View style={styles.parentContainer}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          <View style={styles.topTextContainer}>
-            <Text style={styles.topText}>
-              This tool will help you to generate a schedule of all the rents
-              due using a simple tool
-            </Text>
-          </View>
-
-          {/* Contract Dates Section */}
-          <View style={styles.dateSection}>
-            <View style={styles.dateLabelsRow}>
-              <Text style={styles.dateLabel}>Contract start date*</Text>
-              <Text style={styles.dateLabel2}>Contract end date*</Text>
+    <KeyboardAvoidingView
+      style={styles.avoidView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+      <View style={styles.parentContainer}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContentContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            <View style={styles.topTextContainer}>
+              <Text style={styles.topText}>
+                This tool will help you to generate a schedule of all the rents
+                due using a simple tool
+              </Text>
             </View>
-            <View style={styles.dateRow}>
-              <View style={styles.dateDisplayContainer}>
-                <Text style={styles.dateText}>
-                  {formatDate(displayStartDate)}
-                </Text>
+
+            {/* Contract Dates Section */}
+            <View style={styles.dateSection}>
+              <View style={styles.dateLabelsRow}>
+                <Text style={styles.dateLabel}>Contract start date*</Text>
+                <Text style={styles.dateLabel2}>Contract end date*</Text>
               </View>
-              <Text style={styles.dateSeparator}>-</Text>
-              <View style={styles.dateDisplayContainer}>
-                <Text style={styles.dateText}>
-                  {formatDate(displayEndDate)}
-                </Text>
-              </View>
-              <Text style={styles.dateSeparator}>/</Text>
-              <View style={styles.durationContainer}>
-                <Text style={styles.durationText}>{duration}</Text>
+              <View style={styles.dateRow}>
+                <View style={styles.dateDisplayContainer}>
+                  <Text style={styles.dateText}>
+                    {formatDate(displayStartDate)}
+                  </Text>
+                </View>
+                <Text style={styles.dateSeparator}>-</Text>
+                <View style={styles.dateDisplayContainer}>
+                  <Text style={styles.dateText}>
+                    {formatDate(displayEndDate)}
+                  </Text>
+                </View>
+                <Text style={styles.dateSeparator}>/</Text>
+                <View style={styles.durationContainer}>
+                  <Text style={styles.durationText}>{duration}</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Rental Payment Invoice */}
-          <MoneyInput
-            value={rentalAmount}
-            onChangeText={handleRentalAmountChange}
-            currency={rentalCurrency}
-            onCurrencyChange={handleRentalCurrencyChange}
-            label="Rental payment invoice (Annual)*"
-            placeholder="0,000"
-            error={rentalAmountError}
-            success={rentalAmount.length > 0 && !rentalAmountError}
-            onValidate={validateAmount}
-          />
-
-          {/* Payment Frequency */}
-          <PaymentFrequencySelector
-            onSelectionChange={setPaymentFrequency}
-            initialSelection={paymentFrequency}
-            label="Payment frequency*"
-          />
-
-          {/* Service Charge Per Payment */}
-          <MoneyInput
-            value={serviceCharge}
-            onChangeText={handleServiceChargeChange}
-            currency={serviceCurrency}
-            onCurrencyChange={handleServiceCurrencyChange}
-            label="Service charge per payment (Annual)"
-            placeholder="0,000"
-            error={serviceChargeError}
-            success={serviceCharge.length > 0 && !serviceChargeError}
-            onValidate={validateAmount}
-          />
-
-          {/* VAT Per Payment */}
-          <PercentageInput
-            value={vatPercentage}
-            onChangeText={handleVatPercentageChange}
-            label="VAT per payment"
-            placeholder="%"
-            error={vatPercentageError}
-            success={vatPercentage.length > 0 && !vatPercentageError}
-            onValidate={validatePercentage}
-          />
-
-          {/* Security Deposit Paid */}
-          <MoneyInput
-            value={securityDeposit}
-            onChangeText={handleSecurityDepositChange}
-            currency={securityCurrency}
-            onCurrencyChange={handleSecurityCurrencyChange}
-            label="Security deposit paid"
-            placeholder="0,00"
-            error={securityDepositError}
-            success={securityDeposit.length > 0 && !securityDepositError}
-            onValidate={validateAmount}
-          />
-
-          {/* Submit Button */}
-          <View style={styles.buttonContainer}>
-            <Button
-              title={isLoading ? 'Loading...' : 'Schedule of payment'}
-              onPress={handleSubmit}
-              backgroundColor={COLORS.primary}
-              titleColor="#331800"
-              disabled={isLoading}
+            {/* Rental Payment Invoice */}
+            <MoneyInput
+              value={rentalAmount}
+              onChangeText={handleRentalAmountChange}
+              currency={rentalCurrency}
+              onCurrencyChange={handleRentalCurrencyChange}
+              label="Rental payment invoice (Annual)*"
+              placeholder="0,000"
+              error={rentalAmountError}
+              success={rentalAmount.length > 0 && !rentalAmountError}
+              onValidate={validateAmount}
             />
+
+            {/* Payment Frequency */}
+            <PaymentFrequencySelector
+              onSelectionChange={setPaymentFrequency}
+              initialSelection={paymentFrequency}
+              label="Payment frequency*"
+            />
+
+            {/* Service Charge Per Payment */}
+            <MoneyInput
+              value={serviceCharge}
+              onChangeText={handleServiceChargeChange}
+              currency={serviceCurrency}
+              onCurrencyChange={handleServiceCurrencyChange}
+              label="Service charge per payment (Annual)"
+              placeholder="0,000"
+              error={serviceChargeError}
+              success={serviceCharge.length > 0 && !serviceChargeError}
+              onValidate={validateAmount}
+            />
+
+            {/* VAT Per Payment */}
+            <PercentageInput
+              value={vatPercentage}
+              onChangeText={handleVatPercentageChange}
+              label="VAT per payment"
+              placeholder="%"
+              error={vatPercentageError}
+              success={vatPercentage.length > 0 && !vatPercentageError}
+              onValidate={validatePercentage}
+            />
+
+            {/* Security Deposit Paid */}
+            <MoneyInput
+              value={securityDeposit}
+              onChangeText={handleSecurityDepositChange}
+              currency={securityCurrency}
+              onCurrencyChange={handleSecurityCurrencyChange}
+              label="Security deposit paid"
+              placeholder="0,00"
+              error={securityDepositError}
+              success={securityDeposit.length > 0 && !securityDepositError}
+              onValidate={validateAmount}
+            />
+
+            {/* Submit Button */}
+            <View style={styles.buttonContainer}>
+              <Button
+                title={isLoading ? 'Loading...' : 'Schedule of payment'}
+                onPress={handleSubmit}
+                backgroundColor={COLORS.primary}
+                titleColor="#331800"
+                disabled={isLoading}
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const Styles = (theme: ThemeState) =>
   StyleSheet.create({
+    avoidView: {
+      flex: 1,
+    },
     parentContainer: {
       flex: 1,
       backgroundColor: theme === 'light' ? COLORS.black : '#383642',
     },
     scrollView: {
       flex: 1,
+    },
+    scrollContentContainer: {
+      flexGrow: 1,
     },
     container: {
       width: '100%',
