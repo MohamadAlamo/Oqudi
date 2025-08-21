@@ -160,7 +160,10 @@ const Settings: React.FC<SettingsProps> = ({navigation}) => {
     }
   };
   return (
-    <ScrollView style={currentStyles.parentContainer}>
+    <ScrollView
+      style={currentStyles.parentContainer}
+      contentContainerStyle={currentStyles.scrollContentContainer}
+      showsVerticalScrollIndicator={false}>
       <View style={currentStyles.container}>
         {renderItem(ITEM_TITLES.PROFILE, profileIcon, false, {
           borderTopLeftRadius: 10,
@@ -242,6 +245,10 @@ const lightStyles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: COLORS.black,
   },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 100,
+  },
   container: {
     backgroundColor: '#F4F3F2',
     paddingTop: 15,
@@ -250,7 +257,7 @@ const lightStyles = StyleSheet.create({
     paddingLeft: 15,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
-    height: '100%',
+    minHeight: '100%',
   },
   itemContainer: {
     borderBottomWidth: 0,
@@ -270,7 +277,6 @@ const lightStyles = StyleSheet.create({
   },
   logoutButton: {
     marginHorizontal: 16,
-    paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'black',
@@ -278,7 +284,7 @@ const lightStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 56,
-    marginTop: Platform.OS === 'ios' ? 50 : 18,
+    marginTop: Platform.OS === 'ios' ? 0 : 18,
     marginBottom: 50,
   },
   logoutButtonText: {
@@ -298,6 +304,10 @@ const darkStyles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#383642',
   },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 100,
+  },
   container: {
     backgroundColor: '#24232A',
     paddingTop: 16,
@@ -306,6 +316,7 @@ const darkStyles = StyleSheet.create({
     paddingLeft: 16,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
+    minHeight: '100%',
   },
   itemContainer: {
     borderBottomWidth: 0,
@@ -325,7 +336,6 @@ const darkStyles = StyleSheet.create({
   },
   logoutButton: {
     marginHorizontal: 16,
-    paddingVertical: 12,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#F4F3F2',
@@ -333,7 +343,7 @@ const darkStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 56,
-    marginTop: Platform.OS === 'ios' ? 50 : 18,
+    marginTop: Platform.OS === 'ios' ? 0 : 18,
     marginBottom: 90,
   },
   logoutButtonText: {

@@ -69,7 +69,7 @@ const AddTenant: React.FC<AddTenantProps> = ({navigation, route}) => {
   };
 
   const validateAddress = (address: string): boolean => {
-    return address.trim().length >= 5; // Minimum address length
+    return address.trim().length >= 4; // Minimum address length
   };
 
   const validateVatNumber = (vatNumber: string): boolean => {

@@ -63,17 +63,14 @@ const Tenants: React.FC<TenantsProps> = ({navigation, route}) => {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            try {
-              await deleteTenant(tenantId).unwrap();
-              Alert.alert('Success', 'Tenant deleted successfully!');
-            } catch (error: any) {
-              console.error('Error deleting tenant:', error);
+            const response = await deleteTenant(tenantId);
+            if (response.error) {
               Alert.alert(
                 'Error',
-                error?.data?.message ||
+                response.error?.data?.feedback.message ||
                   'Failed to delete tenant. Please try again.',
               );
-            }
+            } else Alert.alert('Success', 'Tenant deleted successfully!');
           },
         },
       ],

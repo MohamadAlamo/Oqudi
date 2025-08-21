@@ -23,6 +23,8 @@ import {useGetTenantByIdQuery} from '../../app/services/api/tenants';
 import {SERVER_URL} from '../../app/config';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
 import ContractInfo from '../units/components/ContractInfo';
+import Vector from '../../assets/icons/Vector.svg';
+
 interface PropertyDetailsProps {
   navigation: StackNavigationProp<any, any>;
   route: any;
@@ -138,20 +140,25 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                   </Text>
                 </View>
               </View>
-              <View
-                style={[
-                  styles.statusButton,
-                  PropertyStatus === 'unavailable'
-                    ? styles.leased
-                    : styles.available,
-                ]}>
-                <Text style={styles.statusText}>
-                  {PropertyStatus.charAt(0).toUpperCase() +
-                    PropertyStatus.slice(1)}
-                </Text>
+              <View style={styles.statusAndAreaContainer}>
+                <View
+                  style={[
+                    styles.statusButton,
+                    PropertyStatus === 'unavailable'
+                      ? styles.leased
+                      : styles.available,
+                  ]}>
+                  <Text style={styles.statusText}>
+                    {PropertyStatus.charAt(0).toUpperCase() +
+                      PropertyStatus.slice(1)}
+                  </Text>
+                </View>
+                <View style={styles.areaContainer}>
+                  <Vector style={styles.vector} />
+                  <Text style={styles.areaText}>{PropertySize} m²</Text>
+                </View>
               </View>
             </View>
-
             <View style={styles.unitsContainer}>
               {/* <Text style={styles.unitText}>Leased Units: {leasedUnits}</Text>
               <Text style={styles.unitText}>Vacant Units: {vacantUnits}</Text> */}
@@ -343,6 +350,9 @@ const Styles = (theme: ThemeState) =>
       flex: 1,
       marginRight: 10,
     },
+    statusAndAreaContainer: {
+      alignItems: 'flex-end',
+    },
     propertyName: {
       fontSize: 24,
       fontWeight: 'bold',
@@ -419,7 +429,7 @@ const Styles = (theme: ThemeState) =>
       backgroundColor: 'black',
     },
     available: {
-      backgroundColor: '#4D9E70',
+      backgroundColor: COLORS.Success,
     },
     statusText: {
       color: '#fff',
@@ -437,6 +447,22 @@ const Styles = (theme: ThemeState) =>
     },
     scrollView: {
       flex: 1,
+    },
+    areaContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 4,
+      paddingHorizontal: 5,
+      alignSelf: 'flex-end',
+    },
+    areaText: {
+      color: '#ADACB1',
+      marginLeft: 10,
+      marginTop: 5,
+    },
+    vector: {
+      marginTop: 10,
+      marginBottom: 10,
     },
   });
 

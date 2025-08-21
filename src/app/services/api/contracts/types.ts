@@ -76,7 +76,7 @@ export type TContractStatus =
 export const PAYMENT_FREQUENCY = {
   monthly: 'Monthly',
   quarterly: 'Quarterly',
-  Semi-annually: 'Semi-annually',
+  SemiAnnually: 'Semi-annually',
   annually: 'Annually',
 } as const;
 

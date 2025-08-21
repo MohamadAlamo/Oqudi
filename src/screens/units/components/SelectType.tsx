@@ -43,7 +43,7 @@ const SelectType: React.FC<RentalAreaToggleProps> = ({onSelectionChange}) => {
                   ? styles.activePropertyTypeText
                   : styles.inactivePropertyTypeText,
               ]}>
-              {type}
+              {type.charAt(0).toUpperCase() + type.slice(1)}
             </Text>
           </TouchableOpacity>
         ))}
