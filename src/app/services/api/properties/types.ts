@@ -14,6 +14,7 @@ export type TProperty = {
   leasedUnits: number;
   vacantUnits: number;
   contracts: TContract[];
+  size: string;
 };
 
 export const VACANCY_STATUS = {

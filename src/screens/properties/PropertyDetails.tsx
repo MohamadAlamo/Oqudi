@@ -44,13 +44,14 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   const currentPropertyData = propertyData?.data;
 
   // Extract property details from API response
-  const propertyName = currentPropertyData?.name || '';
-  const propertyLocation = currentPropertyData?.location || '';
-  const leasedUnits = currentPropertyData?.leasedUnits || 0;
-  const vacantUnits = currentPropertyData?.vacantUnits || 0;
-  const leaseType = currentPropertyData?.leaseType || 'units';
-  const PropertyStatus = currentPropertyData?.status || 'available';
+  const propertyName = currentPropertyData?.name;
+  const propertyLocation = currentPropertyData?.location;
+  const leasedUnits = currentPropertyData?.leasedUnits;
+  const vacantUnits = currentPropertyData?.vacantUnits;
+  const leaseType = currentPropertyData?.leaseType;
+  const PropertyStatus = currentPropertyData?.status;
   const PropertyContract = currentPropertyData?.contracts;
+  const PropertySize = currentPropertyData?.size?.value;
 
   // Helper function to construct full image URL
   const getImageUrl = (imagePath: string) => {
@@ -165,7 +166,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                       params: {
                         unitId: '',
                         unitName: propertyName,
-                        areaSize: '',
+                        areaSize: PropertySize,
                         unitStatus: PropertyStatus,
                         unitType: leaseType,
                         propertyPart: propertyName,
