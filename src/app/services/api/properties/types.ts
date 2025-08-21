@@ -35,6 +35,7 @@ export type TAddPropertyRequest = {
   location: string;
   types?: TUnitTypes[];
   leaseType: TLeaseType;
+  size: string;
 };
 
 export const UNIT_TYPES = {

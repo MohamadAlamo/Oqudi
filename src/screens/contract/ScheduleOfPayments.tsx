@@ -141,8 +141,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
                   <View style={styles.paymentColumn}>
                     <Text style={styles.paymentLabel}>Services</Text>
                     <Text style={styles.paymentValue}>
-                      {formatCurrency(payment.serviceCharge, payment.currency)}{' '}
-                      ({paymentSchedule.vatPercentage}%)
+                      {formatCurrency(payment.serviceCharge, payment.currency)}
                     </Text>
                   </View>
                   <View style={styles.paymentColumn}>
@@ -322,7 +321,7 @@ const Styles = (theme: ThemeState) =>
     },
     paymentNumber: {
       color: theme === 'light' ? COLORS.black : COLORS.white,
-      fontSize: safeGetResponsiveFontSize(18),
+      fontSize: safeGetResponsiveFontSize(16),
       fontWeight: 'bold',
     },
     paymentContent: {
@@ -338,16 +337,16 @@ const Styles = (theme: ThemeState) =>
       marginRight: safeGetResponsiveSpacing(10),
     },
     paymentLabel: {
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(14),
+      fontWeight: '600',
+      flexWrap: 'wrap',
+    },
+    paymentValue: {
       color: theme === 'light' ? '#666' : '#ADACB1',
       fontSize: safeGetResponsiveFontSize(14),
       fontWeight: '400',
       marginBottom: safeGetResponsiveSpacing(5),
-    },
-    paymentValue: {
-      color: theme === 'light' ? COLORS.black : COLORS.white,
-      fontSize: safeGetResponsiveFontSize(16),
-      fontWeight: '600',
-      flexWrap: 'wrap',
     },
     totalSection: {
       marginTop: safeGetResponsiveSpacing(10),
@@ -356,14 +355,14 @@ const Styles = (theme: ThemeState) =>
       borderTopColor: theme === 'light' ? '#E5E5E5' : '#333',
     },
     totalLabel: {
-      color: theme === 'light' ? '#666' : '#ADACB1',
-      fontSize: safeGetResponsiveFontSize(16),
-      fontWeight: '400',
+      color: theme === 'light' ? COLORS.black : COLORS.white,
+      fontSize: safeGetResponsiveFontSize(14),
+      fontWeight: '600',
       marginBottom: safeGetResponsiveSpacing(5),
     },
     totalValue: {
       color: theme === 'light' ? COLORS.black : COLORS.white,
-      fontSize: safeGetResponsiveFontSize(20),
+      fontSize: safeGetResponsiveFontSize(16),
       fontWeight: 'bold',
     },
   });

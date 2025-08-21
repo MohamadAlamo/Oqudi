@@ -39,6 +39,7 @@ export const {
         formData.append('name', credentials.name);
         formData.append('location', credentials.location);
         formData.append('leaseType', credentials.leaseType.toString());
+        formData.append('size', credentials.size);
         credentials.types?.length &&
           formData.append('types', credentials.types);
 

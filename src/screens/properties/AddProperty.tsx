@@ -232,7 +232,7 @@ const AddProperty: React.FC<AddPropertyProps> = ({navigation}) => {
       leaseType: leaseType,
       ...(leaseType === LEASE_TYPE.whole && {
         types: propertyTypes,
-        size: propertySize,
+        size: propertySize + ',m2',
       }),
     };
     console.log(requestData, 'requestDatarequestDatarequestData');
