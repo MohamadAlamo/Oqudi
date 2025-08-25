@@ -32,7 +32,7 @@ interface UnitDetailsProps {
 const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   const {unitId, propertyId, propertyPart} = route.params;
   const [showLoading, setShowLoading] = useState(true);
-
+  console.log(route.params, 'route.params ');
   const theme = useSelector((state: RootState) => state.theme.theme);
 
   // Fetch fresh unit data from API
@@ -58,8 +58,6 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
     return `${SERVER_URL}/${imagePath.replace(/^\//, '')}`;
   };
   const imageUrl = getImageUrl(currentUnitData?.pictures?.[0]);
-  console.log(currentUnitData, 'currentUnitData');
-  console.log(currentUnitData?.contracts, 'contracts');
 
   const hasContract =
     currentUnitData?.contracts && currentUnitData.contracts?.length > 0;
@@ -67,7 +65,6 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
 
   // Extract tenant ID from the first contract
   const tenantId = firstContract?.tenant;
-  console.log(tenantId, 'tenant ID');
 
   // Fetch tenant data by ID if tenant ID exists
   const {
@@ -79,7 +76,6 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
   });
 
   const tenantInfo = tenantData?.data;
-  console.log(tenantInfo, 'tenant info');
 
   const styles = useMemo(
     () => Styles(theme, hasContract),
@@ -105,7 +101,19 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
       </View>
     );
   }
-
+  const AllData = {
+    UnitDetails: {
+      unitId: unitId,
+      unitName: currentUnitData.name,
+      areaSize: currentUnitData.size?.value,
+      unitStatus: currentUnitData.status,
+      unitType: currentUnitData.type,
+      propertyPart: propertyPart,
+      unitImage: imageUrl,
+      haveContract: currentUnitData.contracts,
+    },
+    propertyInfo: currentUnitData.property,
+  };
   return (
     <View style={styles.parentContainer}>
       <View style={styles.container}>
@@ -158,22 +166,15 @@ const UnitDetails: React.FC<UnitDetailsProps> = ({navigation, route}) => {
           currentUnitData.contracts.length === 0 ? (
             <View style={styles.Roundbutton}>
               <RoundButton
-                onPress={() =>
+                onPress={() => {
                   navigation.navigate('ContractFlow', {
                     screen: ROUTES.ADDCONTRACT,
                     params: {
-                      unitId: unitId,
-                      unitName: currentUnitData.name,
-                      areaSize: currentUnitData.size?.value,
-                      unitStatus: currentUnitData.status,
-                      unitType: currentUnitData.type,
-                      propertyPart: propertyPart,
-                      unitImage: imageUrl,
-                      haveContract: currentUnitData.contracts,
-                      propertyId: currentUnitData.property,
+                      AllData,
+                      contractType: 'unit',
                     },
-                  })
-                }
+                  });
+                }}
                 Title="Add contract"
               />
             </View>

@@ -52,6 +52,8 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const styles = useMemo(() => Styles(theme), [theme]);
 
+  console.log(route.params, 'route.params ');
+
   // Get contract dates and duration from route params (from AddContract.tsx)
   const {startDate, endDate, duration} = route.params || {};
 
@@ -220,8 +222,8 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         | 'Quarterly'
         | 'Semi-annually'
         | 'Annually',
-      duration: duration || '1 year',
-      startDate: startDate || new Date().toISOString(),
+      duration: duration,
+      startDate: startDate,
       currency: rentalCurrency,
     };
 
@@ -305,22 +307,22 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         formattedStartDate: formatDate(displayStartDate),
         formattedEndDate: formatDate(displayEndDate),
       },
-      rentalPaymentInvoice: {
+      TotalRentalInvoice: {
         amount: rentalAmount,
         currency: rentalCurrency,
         numericValue: parseFloat(rentalAmount.replace(/,/g, '')),
       },
       paymentFrequency: paymentFrequency,
-      serviceChargePerPayment: {
+      TotalServiceCharge: {
         amount: serviceCharge,
         currency: serviceCurrency,
         numericValue: parseFloat(serviceCharge.replace(/,/g, '')),
       },
-      vatPerPayment: {
+      TotalVatPer: {
         percentage: vatPercentage,
         numericValue: parseFloat(vatPercentage),
       },
-      securityDepositPaid: {
+      TotalSecurityDeposit: {
         amount: securityDeposit,
         currency: securityCurrency,
         numericValue: parseFloat(securityDeposit.replace(/,/g, '')),
@@ -352,7 +354,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
       endDate: endDate,
       duration: duration,
       formData: formData,
-      paymentSchedule: paymentScheduleData,
+      // paymentSchedule: paymentScheduleData,
       // Pass all original route params to preserve unit and tenant data
       ...route.params,
     });

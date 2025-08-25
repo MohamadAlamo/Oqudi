@@ -82,7 +82,6 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
 
   // Extract tenant ID from the first contract
   const tenantId = firstContract?.tenant;
-  console.log(tenantId, 'property tenant ID');
 
   // Fetch tenant data by ID if tenant ID exists
   const {
@@ -94,7 +93,6 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   });
 
   const tenantInfo = tenantData?.data;
-  console.log(tenantInfo, 'property tenant info');
 
   // Show loading state with skeleton
   if (propertyLoading) {
@@ -117,8 +115,18 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
       </View>
     );
   }
-  console.log(units, 'units');
-  console.log(leaseType, 'leaseType');
+
+  const PropertyDetails = {
+    propertyName,
+    PropertySize,
+    PropertyStatus,
+    propertyType: leaseType,
+    propertyImage,
+    haveContract: PropertyContract,
+    propertyId: propertyId,
+    contractType: 'property',
+  };
+  console.log(PropertyDetails, 'PropertyDetails');
 
   // If leaseType is "whole", show only the basic property info
   if (leaseType === 'whole') {
@@ -171,16 +179,17 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
                     navigation.navigate('ContractFlow', {
                       screen: ROUTES.ADDCONTRACT,
                       params: {
-                        unitId: '',
-                        unitName: propertyName,
-                        areaSize: PropertySize,
-                        unitStatus: PropertyStatus,
-                        unitType: leaseType,
-                        propertyPart: propertyName,
-                        unitImage: propertyImage,
-                        haveContract: PropertyContract,
-                        propertyId: propertyId,
+                        // unitId: '',
+                        // unitName: propertyName,
+                        // areaSize: PropertySize,
+                        // unitStatus: PropertyStatus,
+                        // unitType: leaseType,
+                        // propertyPart: propertyName,
+                        // unitImage: propertyImage,
+                        // haveContract: PropertyContract,
+                        // propertyId: propertyId,
                         contractType: 'property',
+                        PropertyDetails,
                       },
                     })
                   }

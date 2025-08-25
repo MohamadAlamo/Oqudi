@@ -51,16 +51,16 @@ const safeGetResponsiveFontSize = (size: number): number => {
 };
 const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   const {
-    unitStatus,
-    unitName,
-    areaSize,
-    unitType,
-    propertyPart,
-    unitImage,
-    haveContract,
+    // unitStatus,
+    // unitName,
+    // areaSize,
+    // unitType,
+    // propertyPart,
+    // unitImage,
+    // haveContract,
     selectedTenant,
-    unitId,
-    propertyId,
+    // unitId,
+    // propertyId,
     contractType,
     // Property details for navigation back (when contractType is 'property')
     // propertyName,
@@ -71,15 +71,18 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     // leaseType,
     // PropertyStatus,
     // PropertyContract,
+    AllData,
+    PropertyDetails,
   } = route.params;
-  console.log(propertyId._id, ' propertyIdpropertyIdpropertyId');
-  console.log(propertyId, ' propertyIdpropertyIdpropertyId');
+
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
-
+  console.log(route.params, 'route.params ');
+  console.log(contractType, 'contractType');
+  const unit = AllData?.UnitDetails;
   // State for contract dates
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(
@@ -241,39 +244,78 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       return;
     }
 
+    // Debug logging to identify the structure
+    // console.log('scheduleFormData:', JSON.stringify(scheduleFormData, null, 2));
+    // console.log(
+    //   'paymentScheduleData:',
+    //   JSON.stringify(paymentScheduleData, null, 2),
+    // );
+
+    // // Validate required data structure
+    // if (!scheduleFormData) {
+    //   Alert.alert(
+    //     'Error',
+    //     'Payment schedule data is missing. Please create the payment schedule again.',
+    //   );
+    //   return;
+    // }
+
+    // if (!scheduleFormData.rentalPaymentInvoice) {
+    //   Alert.alert(
+    //     'Error',
+    //     'Rental payment information is missing. Please create the payment schedule again.',
+    //   );
+    //   return;
+    // }
+
+    // if (!scheduleFormData.serviceChargePerPayment) {
+    //   Alert.alert(
+    //     'Error',
+    //     'Service charge information is missing. Please create the payment schedule again.',
+    //   );
+    //   return;
+    // }
+
     try {
       // Build contract data - conditionally include unit field
       const contractData: any = {
         paymentSchedule: [],
-        property: propertyId._id || propertyId,
+        property: AllData?.propertyInfo?._id || PropertyDetails?.propertyId,
         owner: currentUser._id,
         tenant: currentSelectedTenant._id || currentSelectedTenant.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        paymentFrequency: scheduleFormData.paymentFrequency.toLowerCase(),
+        paymentFrequency:
+          scheduleFormData.paymentFrequency?.toLowerCase() || 'monthly',
         amount: {
           value: Number(
-            scheduleFormData.rentalPaymentInvoice.amount.replace(/,/g, ''),
+            (scheduleFormData.rentalPaymentInvoice?.amount || '0').replace(
+              /,/g,
+              '',
+            ),
           ),
-          currency: scheduleFormData.rentalPaymentInvoice.currency,
+          currency: scheduleFormData.rentalPaymentInvoice?.currency || 'USD',
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
           value: Number(
-            scheduleFormData.serviceChargePerPayment.amount.replace(/,/g, ''),
+            (scheduleFormData.serviceChargePerPayment?.amount || '0').replace(
+              /,/g,
+              '',
+            ),
           ),
-          currency: scheduleFormData.serviceChargePerPayment.currency,
+          currency: scheduleFormData.serviceChargePerPayment?.currency || 'USD',
         },
         VAT: {
-          value: paymentScheduleData.totalVATAmount,
-          currency: scheduleFormData.serviceChargePerPayment.currency,
-          percentage: paymentScheduleData.vatPercentage,
+          value: paymentScheduleData?.totalVATAmount || 0,
+          currency: scheduleFormData.serviceChargePerPayment?.currency || 'USD',
+          percentage: paymentScheduleData?.vatPercentage || 0,
         },
       };
 
       // Only add unit field if it's not a property contract
       if (contractType !== 'property') {
-        contractData.unit = unitId;
+        contractData.unit = unit?.unitId;
       }
       console.log(paymentScheduleData, 'paymentScheduleData');
       console.log(contractData, 'contractData');
@@ -291,13 +333,13 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
             if (contractType === 'property') {
               // Navigate back to PropertyDetails
               navigation.navigate(ROUTES.PROPERTY_DETAILS, {
-                propertyId: propertyId,
+                propertyId: PropertyDetails?.propertyId,
               });
             } else {
               navigation.navigate('UnitsFlow', {
                 screen: ROUTES.UNIT_DETAILS,
                 params: {
-                  unitId: route.params.unitId,
+                  unitId: unit.unitId,
                 },
               });
             }
@@ -314,7 +356,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       );
     }
   };
-
+  const imageSource = unit?.unitImage || PropertyDetails?.propertyImage;
   return (
     <View style={styles.parentContainer}>
       <View style={styles.container}>
@@ -327,41 +369,50 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         <View style={styles.card}>
           <Image
             source={
-              unitImage && typeof unitImage === 'string'
-                ? {uri: unitImage}
-                : unitImage
+              imageSource && typeof imageSource === 'string'
+                ? {uri: imageSource}
+                : imageSource
             }
             style={styles.image}
           />
           <View style={styles.infoContainer}>
-            <Text style={styles.unitName}>{unitName}</Text>
+            <Text style={styles.unitName}>
+              {unit?.unitName || PropertyDetails?.propertyName}
+            </Text>
             <View style={styles.areaContainer}>
               <Text style={styles.areaIcon}>
                 <Vector />
               </Text>
-              <Text style={styles.areaText}>{areaSize} m²</Text>
+              <Text style={styles.areaText}>
+                {unit?.areaSize || PropertyDetails?.PropertySize} m²
+              </Text>
             </View>
             <View
               style={[
                 styles.statusButton,
                 status === 'Leased' ? styles.leased : styles.available,
               ]}>
-              <Text style={styles.statusText}>{unitStatus}</Text>
+              <Text style={styles.statusText}>
+                {unit?.unitStatus || PropertyDetails?.PropertyStatus}
+              </Text>
             </View>
           </View>
         </View>
 
         <View style={styles.typeContainer}>
           <Text style={styles.type}>
-            {unitType
-              ? unitType.charAt(0).toUpperCase() +
-                unitType.slice(1).toLowerCase()
+            {unit?.unitType || PropertyDetails?.propertyType
+              ? (unit?.unitType || PropertyDetails?.propertyType)
+                  .charAt(0)
+                  .toUpperCase() +
+                (unit?.unitType || PropertyDetails?.propertyType)
+                  .slice(1)
+                  .toLowerCase()
               : 'Unit'}
           </Text>
-          <Text
-            style={
-              styles.propertyName
-            }>{`Part of the property ( ${propertyPart} )`}</Text>
+          <Text style={styles.propertyName}>{`Part of the property ( ${
+            unit?.propertyPart || PropertyDetails?.propertyName
+          } )`}</Text>
         </View>
 
         {/* Contract Dates Section */}

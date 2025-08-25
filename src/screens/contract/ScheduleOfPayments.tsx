@@ -42,9 +42,8 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Get all data from route params
-  const {startDate, endDate, duration, formData, paymentSchedule} =
-    route.params || {};
-
+  const {startDate, endDate, duration, formData} = route.params || {};
+  console.log(route.params, 'route.params ');
   // Format date for display
   const formatDate = (dateString: string): string => {
     if (!dateString) return '';
@@ -68,7 +67,6 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
     setIsLoading(true);
 
     // Log the payment schedule data
-    console.log('Saving payment schedule:', paymentSchedule);
 
     // Simulate a brief save operation
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -79,7 +77,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
     navigation.navigate(ROUTES.ADDCONTRACT, {
       ...route.params, // Pass through existing params (unitId, etc.)
       paymentScheduleCompleted: true,
-      paymentScheduleData: paymentSchedule,
+      paymentScheduleData: formData.paymentSchedule,
       formData: formData,
     });
   };
@@ -113,55 +111,60 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
           </View>
 
           {/* Payment Cards */}
-          {paymentSchedule?.payments?.map((payment: any, index: number) => (
-            <View key={index} style={styles.paymentCard}>
-              <View style={styles.paymentHeader}>
-                <Text style={styles.paymentNumber}>
-                  № {payment.paymentNumber}
-                </Text>
-              </View>
-
-              <View style={styles.paymentContent}>
-                <View style={styles.paymentRow}>
-                  <View style={styles.paymentColumn}>
-                    <Text style={styles.paymentLabel}>Due date</Text>
-                    <Text style={styles.paymentValue}>
-                      {payment.formattedDueDate}
-                    </Text>
-                  </View>
-                  <View style={styles.paymentColumn}>
-                    <Text style={styles.paymentLabel}>Rent value</Text>
-                    <Text style={styles.paymentValue}>
-                      {formatCurrency(payment.baseRental, payment.currency)}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.paymentRow}>
-                  <View style={styles.paymentColumn}>
-                    <Text style={styles.paymentLabel}>Services</Text>
-                    <Text style={styles.paymentValue}>
-                      {formatCurrency(payment.serviceCharge, payment.currency)}
-                    </Text>
-                  </View>
-                  <View style={styles.paymentColumn}>
-                    <Text style={styles.paymentLabel}>VAT</Text>
-                    <Text style={styles.paymentValue}>
-                      {formatCurrency(payment.vatAmount, payment.currency)} (
-                      {paymentSchedule.vatPercentage}%)
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.totalSection}>
-                  <Text style={styles.totalLabel}>Total value</Text>
-                  <Text style={styles.totalValue}>
-                    {formatCurrency(payment.totalAmount, payment.currency)}
+          {formData.paymentSchedule?.payments?.map(
+            (payment: any, index: number) => (
+              <View key={index} style={styles.paymentCard}>
+                <View style={styles.paymentHeader}>
+                  <Text style={styles.paymentNumber}>
+                    № {payment.paymentNumber}
                   </Text>
                 </View>
+
+                <View style={styles.paymentContent}>
+                  <View style={styles.paymentRow}>
+                    <View style={styles.paymentColumn}>
+                      <Text style={styles.paymentLabel}>Due date</Text>
+                      <Text style={styles.paymentValue}>
+                        {payment.formattedDueDate}
+                      </Text>
+                    </View>
+                    <View style={styles.paymentColumn}>
+                      <Text style={styles.paymentLabel}>Rent value</Text>
+                      <Text style={styles.paymentValue}>
+                        {formatCurrency(payment.baseRental, payment.currency)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.paymentRow}>
+                    <View style={styles.paymentColumn}>
+                      <Text style={styles.paymentLabel}>Services</Text>
+                      <Text style={styles.paymentValue}>
+                        {formatCurrency(
+                          payment.serviceCharge,
+                          payment.currency,
+                        )}
+                      </Text>
+                    </View>
+                    <View style={styles.paymentColumn}>
+                      <Text style={styles.paymentLabel}>VAT</Text>
+                      <Text style={styles.paymentValue}>
+                        {formatCurrency(payment.vatAmount, payment.currency)} (
+                        {formData.paymentSchedule.vatPercentage}%)
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.totalSection}>
+                    <Text style={styles.totalLabel}>Total value</Text>
+                    <Text style={styles.totalValue}>
+                      {formatCurrency(payment.totalAmount, payment.currency)}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            </View>
-          ))}
+            ),
+          )}
         </View>
       </ScrollView>
 

@@ -56,7 +56,9 @@ const UnitsCard: React.FC<UnitsCardProps> = ({
         <View style={styles.unitStatusContainer}>
           <View style={styles.unitNameRow2}>
             <PropertyDash style={styles.icon} />
-            <Text style={styles.unitTypeText}>{unitType}</Text>
+            <Text style={styles.unitTypeText}>
+              {unitType.charAt(0).toUpperCase() + unitType.slice(1)}
+            </Text>
           </View>
           <View style={styles.unitNameRow3}>
             <Text style={styles.viewDetailsText}>View Details</Text>
