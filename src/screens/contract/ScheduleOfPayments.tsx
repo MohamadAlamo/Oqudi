@@ -42,7 +42,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Get all data from route params
-  const {startDate, endDate, duration, formData} = route.params || {};
+  const {startDate, endDate, duration, contractSchData} = route.params || {};
   console.log(route.params, 'route.params ');
   // Format date for display
   const formatDate = (dateString: string): string => {
@@ -77,8 +77,8 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
     navigation.navigate(ROUTES.ADDCONTRACT, {
       ...route.params, // Pass through existing params (unitId, etc.)
       paymentScheduleCompleted: true,
-      paymentScheduleData: formData.paymentSchedule,
-      formData: formData,
+      // paymentScheduleData: contractSchData.paymentSchedule,
+      contractSchData: contractSchData,
     });
   };
 
@@ -111,7 +111,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
           </View>
 
           {/* Payment Cards */}
-          {formData.paymentSchedule?.payments?.map(
+          {contractSchData.paymentSchedule?.payments?.map(
             (payment: any, index: number) => (
               <View key={index} style={styles.paymentCard}>
                 <View style={styles.paymentHeader}>
@@ -150,7 +150,7 @@ const ScheduleOfPayments: React.FC<ScheduleOfPaymentsProps> = ({
                       <Text style={styles.paymentLabel}>VAT</Text>
                       <Text style={styles.paymentValue}>
                         {formatCurrency(payment.vatAmount, payment.currency)} (
-                        {formData.paymentSchedule.vatPercentage}%)
+                        {contractSchData.paymentSchedule.vatPercentage}%)
                       </Text>
                     </View>
                   </View>

@@ -50,30 +50,7 @@ const safeGetResponsiveFontSize = (size: number): number => {
   }
 };
 const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
-  const {
-    // unitStatus,
-    // unitName,
-    // areaSize,
-    // unitType,
-    // propertyPart,
-    // unitImage,
-    // haveContract,
-    selectedTenant,
-    // unitId,
-    // propertyId,
-    contractType,
-    // Property details for navigation back (when contractType is 'property')
-    // propertyName,
-    // propertyImage,
-    // propertyLocation,
-    // leasedUnits,
-    // vacantUnits,
-    // leaseType,
-    // PropertyStatus,
-    // PropertyContract,
-    AllData,
-    PropertyDetails,
-  } = route.params;
+  const {selectedTenant, contractType, AllData, PropertyDetails} = route.params;
 
   const theme = useSelector((state: RootState) => state.theme.theme);
   const currentUser = useSelector((state: RootState) => state.user);
@@ -81,7 +58,6 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   const styles = useMemo(() => Styles(theme), [theme]);
   const status = 'Leased';
   console.log(route.params, 'route.params ');
-  console.log(contractType, 'contractType');
   const unit = AllData?.UnitDetails;
   // State for contract dates
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -116,30 +92,10 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   useEffect(() => {
     if (route.params?.paymentScheduleCompleted) {
       setPaymentScheduleCompleted(true);
-      setPaymentScheduleData(route.params.paymentScheduleData);
-      setScheduleFormData(route.params.formData);
+      setPaymentScheduleData(route.params.contractSchData.paymentSchedule);
+      setScheduleFormData(route.params.contractSchData);
     }
   }, [route.params]);
-
-  // Use form exit confirmation hook - temporarily commented out to debug
-  // useFormExitConfirmation({
-  //   navigation,
-  //   targetRoute: 'UnitsFlow',
-  //   forceTargetRoute: true,
-  //   targetParams: {
-  //     screen: ROUTES.UNIT_DETAILS,
-  //     params: {
-  //       unitId: route.params.unitId,
-  //       unitName: unitName,
-  //       areaSize: areaSize,
-  //       unitStatus: unitStatus,
-  //       unitType: unitType,
-  //       propertyPart: propertyPart,
-  //       unitImage: unitImage,
-  //       haveContract: haveContract,
-  //     },
-  //   },
-  // });
 
   // Handle tenant selection options
   const handleTenantOptionPress = () => {
@@ -244,83 +200,38 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       return;
     }
 
-    // Debug logging to identify the structure
-    // console.log('scheduleFormData:', JSON.stringify(scheduleFormData, null, 2));
-    // console.log(
-    //   'paymentScheduleData:',
-    //   JSON.stringify(paymentScheduleData, null, 2),
-    // );
-
-    // // Validate required data structure
-    // if (!scheduleFormData) {
-    //   Alert.alert(
-    //     'Error',
-    //     'Payment schedule data is missing. Please create the payment schedule again.',
-    //   );
-    //   return;
-    // }
-
-    // if (!scheduleFormData.rentalPaymentInvoice) {
-    //   Alert.alert(
-    //     'Error',
-    //     'Rental payment information is missing. Please create the payment schedule again.',
-    //   );
-    //   return;
-    // }
-
-    // if (!scheduleFormData.serviceChargePerPayment) {
-    //   Alert.alert(
-    //     'Error',
-    //     'Service charge information is missing. Please create the payment schedule again.',
-    //   );
-    //   return;
-    // }
-
     try {
-      // Build contract data - conditionally include unit field
-      const contractData: any = {
+      const contractSchData = route.params.contractSchData;
+      const NewApiData: any = {
         paymentSchedule: [],
         property: AllData?.propertyInfo?._id || PropertyDetails?.propertyId,
         owner: currentUser._id,
-        tenant: currentSelectedTenant._id || currentSelectedTenant.id,
+        tenant: currentSelectedTenant._id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         paymentFrequency:
-          scheduleFormData.paymentFrequency?.toLowerCase() || 'monthly',
+          contractSchData.paymentSchedule.paymentFrequency.toLowerCase(),
         amount: {
-          value: Number(
-            (scheduleFormData.rentalPaymentInvoice?.amount || '0').replace(
-              /,/g,
-              '',
-            ),
-          ),
-          currency: scheduleFormData.rentalPaymentInvoice?.currency || 'USD',
+          value: contractSchData.paymentSchedule.totalContractValue,
+          currency: contractSchData.selectedCurrency,
         },
         serviceCharge: {
           paymentType: 'fixed-amount',
-          value: Number(
-            (scheduleFormData.serviceChargePerPayment?.amount || '0').replace(
-              /,/g,
-              '',
-            ),
-          ),
-          currency: scheduleFormData.serviceChargePerPayment?.currency || 'USD',
+          value: contractSchData.paymentSchedule.totalServiceCharges,
+          currency: contractSchData.selectedCurrency,
         },
         VAT: {
-          value: paymentScheduleData?.totalVATAmount || 0,
-          currency: scheduleFormData.serviceChargePerPayment?.currency || 'USD',
-          percentage: paymentScheduleData?.vatPercentage || 0,
+          value: contractSchData.paymentSchedule.totalVATAmount,
+          currency: contractSchData.selectedCurrency,
+          percentage: contractSchData.paymentSchedule.vatPercentage,
         },
       };
-
-      // Only add unit field if it's not a property contract
       if (contractType !== 'property') {
-        contractData.unit = unit?.unitId;
+        NewApiData.unit = unit?.unitId;
       }
-      console.log(paymentScheduleData, 'paymentScheduleData');
-      console.log(contractData, 'contractData');
-
-      const response = await createContract(contractData).unwrap();
+      console.log(route.params, 'route.params ');
+      console.log(NewApiData, 'NewApiData ');
+      const response = await createContract(NewApiData).unwrap();
       console.log(response, 'response');
 
       // Invalidate Units cache to trigger fresh data fetch

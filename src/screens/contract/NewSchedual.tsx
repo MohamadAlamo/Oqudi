@@ -65,21 +65,21 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
 
   // Form state
   const [rentalAmount, setRentalAmount] = useState('');
-  const [rentalCurrency, setRentalCurrency] = useState<'MYR' | 'USD' | 'SAR'>(
-    'USD',
+  const [rentalCurrency, setRentalCurrency] = useState<'SAR' | 'USD' | 'MYR'>(
+    'SAR',
   );
   const [paymentFrequency, setPaymentFrequency] = useState<
     'Monthly' | 'Quarterly' | 'Semi-annually' | 'Annually' | ''
   >('');
   const [serviceCharge, setServiceCharge] = useState('');
-  const [serviceCurrency, setServiceCurrency] = useState<'MYR' | 'USD' | 'SAR'>(
-    'USD',
+  const [serviceCurrency, setServiceCurrency] = useState<'SAR' | 'USD' | 'MYR'>(
+    'SAR',
   );
   const [vatPercentage, setVatPercentage] = useState('');
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [securityCurrency, setSecurityCurrency] = useState<
-    'MYR' | 'USD' | 'SAR'
-  >('USD');
+    'SAR' | 'USD' | 'MYR'
+  >('SAR');
 
   // Error states
   const [rentalAmountError, setRentalAmountError] = useState<boolean>(false);
@@ -135,19 +135,19 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
   };
 
   // Currency synchronization handlers
-  const handleRentalCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+  const handleRentalCurrencyChange = (newCurrency: 'SAR' | 'USD' | 'MYR') => {
     setRentalCurrency(newCurrency);
     setServiceCurrency(newCurrency);
     setSecurityCurrency(newCurrency);
   };
 
-  const handleServiceCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+  const handleServiceCurrencyChange = (newCurrency: 'SAR' | 'USD' | 'MYR') => {
     setRentalCurrency(newCurrency);
     setServiceCurrency(newCurrency);
     setSecurityCurrency(newCurrency);
   };
 
-  const handleSecurityCurrencyChange = (newCurrency: 'MYR' | 'USD' | 'SAR') => {
+  const handleSecurityCurrencyChange = (newCurrency: 'SAR' | 'USD' | 'MYR') => {
     setRentalCurrency(newCurrency);
     setServiceCurrency(newCurrency);
     setSecurityCurrency(newCurrency);
@@ -299,7 +299,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
     const paymentScheduleData = calculatePaymentSchedule();
 
     // Create comprehensive form data with all details
-    const formData = {
+    const contractSchData = {
       contractDates: {
         startDate: displayStartDate,
         endDate: displayEndDate,
@@ -307,6 +307,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
         formattedStartDate: formatDate(displayStartDate),
         formattedEndDate: formatDate(displayEndDate),
       },
+      selectedCurrency: rentalCurrency,
       TotalRentalInvoice: {
         amount: rentalAmount,
         currency: rentalCurrency,
@@ -332,20 +333,6 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
       paymentSchedule: paymentScheduleData,
     };
 
-    // Console log all form data with payment calculations
-    // console.log('=== PAYMENT SCHEDULE CALCULATION ===');
-    // console.log('Number of Payments:', paymentScheduleData.numberOfPayments);
-    // console.log('Payment Frequency:', paymentScheduleData.paymentFrequency);
-    // console.log(
-    //   'Total Contract Value:',
-    //   paymentScheduleData.totalContractValue,
-    // );
-    // console.log('Grand Total (with VAT):', paymentScheduleData.grandTotal);
-    // console.log('Security Deposit:', paymentScheduleData.securityDeposit);
-    // console.log('Individual Payments:', paymentScheduleData.payments);
-    // console.log('Complete Form Data Object:', formData);
-    // console.log('===============================');
-
     setIsLoading(false);
 
     // Navigate to ScheduleOfPayments with all calculated data and original params
@@ -353,7 +340,7 @@ const NewSchedual: React.FC<NewSchedualProps> = ({navigation, route}) => {
       startDate: startDate,
       endDate: endDate,
       duration: duration,
-      formData: formData,
+      contractSchData: contractSchData,
       // paymentSchedule: paymentScheduleData,
       // Pass all original route params to preserve unit and tenant data
       ...route.params,

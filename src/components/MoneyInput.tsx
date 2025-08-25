@@ -17,7 +17,7 @@ import {
 } from '../lib/helpers/fontScaling';
 import DownIcon from '../assets/icons/DownIcon.svg';
 
-type Currency = 'MYR' | 'USD' | 'SAR';
+type Currency = 'SAR' | 'USD' | 'MYR';
 
 type MoneyInputProps = {
   value: string;
@@ -32,7 +32,7 @@ type MoneyInputProps = {
   onValidate?: (value: string) => boolean;
 };
 
-const CURRENCIES: Currency[] = ['MYR', 'USD', 'SAR'];
+const CURRENCIES: Currency[] = ['SAR', 'USD', 'MYR'];
 
 // Safe helper functions with fallbacks
 const safeGetResponsiveFontSize = (size: number): number => {
