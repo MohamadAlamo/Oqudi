@@ -59,11 +59,19 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
   const status = 'Leased';
   console.log(route.params, 'route.params ');
   const unit = AllData?.UnitDetails;
-  // State for contract dates
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(
-    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-  ); // Default to 1 year later
+  // State for contract dates - Initialize from route params if available
+  const [startDate, setStartDate] = useState<Date>(() => {
+    if (route.params?.startDate) {
+      return new Date(route.params.startDate);
+    }
+    return new Date();
+  });
+  const [endDate, setEndDate] = useState<Date>(() => {
+    if (route.params?.endDate) {
+      return new Date(route.params.endDate);
+    }
+    return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+  });
 
   // State for tenant selection
   const [currentSelectedTenant, setCurrentSelectedTenant] = useState<any>(
@@ -112,7 +120,11 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
         params: {
           selectionMode: true,
           returnTo: 'AddContract',
-          originalParams: route.params,
+          originalParams: {
+            ...route.params,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+          },
         },
       },
     });
@@ -122,7 +134,11 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
     setShowTenantOptions(false);
     navigation.navigate(ROUTES.ADDTENANT, {
       returnTo: 'AddContract',
-      originalParams: route.params,
+      originalParams: {
+        ...route.params,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
     });
   };
 
@@ -180,6 +196,9 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       ...route.params,
       // Ensure current selected tenant is included
       selectedTenant: currentSelectedTenant,
+      // Preserve the current dates explicitly
+      preservedStartDate: startDate.toISOString(),
+      preservedEndDate: endDate.toISOString(),
     });
   };
 
@@ -229,10 +248,7 @@ const AddContract: React.FC<AddContractProps> = ({navigation, route}) => {
       if (contractType !== 'property') {
         NewApiData.unit = unit?.unitId;
       }
-      console.log(route.params, 'route.params ');
-      console.log(NewApiData, 'NewApiData ');
       const response = await createContract(NewApiData).unwrap();
-      console.log(response, 'response');
 
       // Invalidate Units cache to trigger fresh data fetch
       dispatch(apiSlice.util.invalidateTags(['Units']));

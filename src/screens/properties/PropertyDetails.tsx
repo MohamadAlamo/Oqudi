@@ -63,7 +63,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   const propertyImage = getImageUrl(currentPropertyData?.pictures?.[0]);
 
   const theme = useSelector((state: RootState) => state.theme.theme);
-  const styles = useMemo(() => Styles(theme), [theme]);
+  const styles = useMemo(() => Styles(theme, leaseType), [theme, leaseType]);
 
   // Fetch units data (must be called before any conditional returns)
   const {currentData} = useGetUnitsQuery({
@@ -319,7 +319,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({
   );
 };
 
-const Styles = (theme: ThemeState) =>
+const Styles = (theme: ThemeState, leaseType?: string) =>
   StyleSheet.create({
     parentContainer: {
       flex: 1,
@@ -414,7 +414,7 @@ const Styles = (theme: ThemeState) =>
       flex: 1,
     },
     scrollContentContainer: {
-      paddingBottom: 130,
+      paddingBottom: leaseType === 'whole' ? 0 : 130,
     },
     divider: {
       height: 1,
